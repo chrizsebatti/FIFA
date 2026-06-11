@@ -1,0 +1,12 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  @apply bg-fifa-dark text-white antialiased;
+  min-height: 100dvh;
+}
+
+#root {
+  min-height: 100dvh;
+}
