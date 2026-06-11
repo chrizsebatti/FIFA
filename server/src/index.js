@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
+import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { connectDB } from './config/db.js';
@@ -40,6 +41,10 @@ app.use('/api/predictions', predictionRoutes);
 app.use('/api/leaderboard', leaderboardRoutes);
 app.use('/api/admin', adminRoutes);
 
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'ok' });
+});
+
 app.use((req, res, next) => {
   if (req.path.startsWith('/api')) {
     return res.status(404).json({ error: 'Not found' });
@@ -49,30 +54,31 @@ app.use((req, res, next) => {
 
 if (process.env.NODE_ENV === 'production') {
   const clientDist = path.join(__dirname, '../../client/dist');
-  app.use(express.static(clientDist));
-  app.get('*', (req, res) => {
-    res.sendFile(path.join(clientDist, 'index.html'));
-  });
+  if (fs.existsSync(clientDist)) {
+    app.use(express.static(clientDist));
+    app.get('*', (req, res) => {
+      res.sendFile(path.join(clientDist, 'index.html'));
+    });
+  }
 }
 
 app.use(errorHandler);
 
-connectDB()
-  .then(() => {
-    const server = app.listen(PORT, () => {
-      console.log(`Server running on port ${PORT}`);
-    });
-    server.on('error', (err) => {
-      if (err.code === 'EADDRINUSE') {
-        console.error(
-          `Port ${PORT} is already in use. Change PORT in server/.env (macOS often uses 5000 for AirPlay).`
-        );
-        process.exit(1);
-      }
-      throw err;
-    });
-  })
-  .catch((err) => {
-    console.error('Failed to connect to MongoDB:', err);
+const server = app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Server running on port ${PORT}`);
+});
+
+server.on('error', (err) => {
+  if (err.code === 'EADDRINUSE') {
+    console.error(
+      `Port ${PORT} is already in use. Change PORT in server/.env (macOS often uses 5000 for AirPlay).`
+    );
     process.exit(1);
-  });
+  }
+  throw err;
+});
+
+connectDB().catch((err) => {
+  console.error('Failed to connect to MongoDB:', err);
+  process.exit(1);
+});
