@@ -1,15 +1,10 @@
 import axios from 'axios';
 
-const RENDER_API = 'https://fifa-sl3t.onrender.com/api';
+const baseURL = import.meta.env.DEV
+  ? '/api'
+  : import.meta.env.VITE_API_URL;
 
-function getBaseURL() {
-  if (!import.meta.env.PROD) return '/api';
-  const envUrl = import.meta.env.VITE_API_URL;
-  if (envUrl?.startsWith('http')) return envUrl;
-  return RENDER_API;
-}
-
-const api = axios.create({ baseURL: getBaseURL() });
+const api = axios.create({ baseURL });
 
 api.interceptors.request.use((config) => {
   if (config.url === '/admin/login') return config;
