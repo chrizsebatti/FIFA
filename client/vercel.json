@@ -1,8 +1,0 @@
-{
-  "rewrites": [
-    {
-      "source": "/api/(.*)",
-      "destination": "https://fifa-sl3t.onrender.com/api/$1"
-    }
-  ]
-}
