@@ -12,6 +12,15 @@ import predictionRoutes from './routes/predictions.js';
 import leaderboardRoutes from './routes/leaderboard.js';
 import adminRoutes from './routes/admin.js';
 
+const cors = require('cors');
+
+app.use(cors({
+  origin: [
+    'https://fifa2026-877ixmucc-christosebastaingmailcoms-projects.vercel.app'
+  ],
+  credentials: true
+}));
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
 const PORT = Number(process.env.PORT) || 5001;
