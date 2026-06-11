@@ -4,6 +4,8 @@ const api = axios.create({
   baseURL: 'https://fifa-sl3t.onrender.com/api',
 });
 
+console.log('api----', api);
+
 api.interceptors.request.use((config) => {
   if (config.url === '/admin/login') return config;
   const isAdminRoute = config.url?.startsWith('/admin');
