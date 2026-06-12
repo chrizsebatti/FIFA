@@ -789,6 +789,8 @@ Germany,France,2026-06-20T18:00:00.000Z,Group B,,`;
                         Imported {predictionImportResult.imported} predictions
                         {predictionImportResult.failed > 0 &&
                           `, ${predictionImportResult.failed} failed`}
+                        {predictionImportResult.snapshotsRefreshed > 0 &&
+                          ` · ${predictionImportResult.snapshotsRefreshed} rank snapshot${predictionImportResult.snapshotsRefreshed !== 1 ? 's' : ''} refreshed`}
                       </div>
                       {predictionImportResult.errors?.length > 0 && (
                         <div className="max-h-32 overflow-y-auto rounded-lg bg-red-500/10 p-2 text-xs text-red-300">

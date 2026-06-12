@@ -4,6 +4,7 @@ import Prediction from '../models/Prediction.js';
 import User from '../models/User.js';
 import { calculatePoints } from './scoring.js';
 import { parseImportPayload } from './bulkImport.js';
+import { snapshotLeaderboardRanks } from './rankSnapshot.js';
 
 const REQUIRED = ['phoneNumber', 'predictedWinner', 'scoreA', 'scoreB'];
 const TIME_TOLERANCE_MS = 5 * 60 * 1000;
@@ -195,11 +196,35 @@ export async function importPredictions({ format, data }) {
     await User.findByIdAndUpdate(userId, { totalPoints: result[0]?.total || 0 });
   }
 
+  let snapshotsRefreshed = 0;
+  if (finishedMatchIds.size > 0) {
+    const touchedMatches = await Match.find({
+      _id: { $in: [...finishedMatchIds] },
+      status: 'finished',
+    })
+      .sort({ startTime: 1 })
+      .select('_id startTime');
+
+    if (touchedMatches.length > 0) {
+      const earliestStart = touchedMatches[0].startTime;
+      const matchesToSnapshot = await Match.find({
+        status: 'finished',
+        startTime: { $gte: earliestStart },
+      }).sort({ startTime: 1 });
+
+      for (const match of matchesToSnapshot) {
+        await snapshotLeaderboardRanks(match._id);
+        snapshotsRefreshed++;
+      }
+    }
+  }
+
   return {
     imported,
     failed: errors.length,
     errors,
     usersCreated,
     scoredMatches: finishedMatchIds.size,
+    snapshotsRefreshed,
   };
 }
