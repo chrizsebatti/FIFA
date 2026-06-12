@@ -5,6 +5,7 @@ import Layout from '../components/Layout';
 import MatchResultLeaderboard from '../components/MatchResultLeaderboard';
 import PredictionForm from '../components/PredictionForm';
 import { formatDateTime, getMatchStatus, statusLabel } from '../utils/format';
+import { validatePredictionConsistency } from '../utils/predictionValidation';
 
 export default function Predict() {
   const { id } = useParams();
@@ -12,6 +13,7 @@ export default function Predict() {
   const [match, setMatch] = useState(null);
   const [prediction, setPrediction] = useState(null);
   const [participants, setParticipants] = useState([]);
+  const [predictionStats, setPredictionStats] = useState(null);
   const [predictedWinner, setPredictedWinner] = useState('');
   const [scoreA, setScoreA] = useState('0');
   const [scoreB, setScoreB] = useState('0');
@@ -21,17 +23,20 @@ export default function Predict() {
   const [success, setSuccess] = useState('');
 
   useEffect(() => {
-    api
-      .get(`/matches/${id}/my-prediction`)
-      .then((res) => {
-        setMatch(res.data.match);
-        if (res.data.prediction) {
-          setPrediction(res.data.prediction);
-          setPredictedWinner(res.data.prediction.predictedWinner);
-          setScoreA(String(res.data.prediction.scoreA));
-          setScoreB(String(res.data.prediction.scoreB));
+    Promise.all([
+      api.get(`/matches/${id}/my-prediction`),
+      api.get(`/matches/${id}/prediction-stats`),
+    ])
+      .then(([predRes, statsRes]) => {
+        setMatch(predRes.data.match);
+        setPredictionStats(statsRes.data);
+        if (predRes.data.prediction) {
+          setPrediction(predRes.data.prediction);
+          setPredictedWinner(predRes.data.prediction.predictedWinner);
+          setScoreA(String(predRes.data.prediction.scoreA));
+          setScoreB(String(predRes.data.prediction.scoreB));
         }
-        if (res.data.match?.status === 'finished') {
+        if (predRes.data.match?.status === 'finished') {
           return api.get(`/matches/${id}/participants`).then((pRes) => {
             setParticipants(pRes.data.participants);
           });
@@ -45,13 +50,27 @@ export default function Predict() {
     e.preventDefault();
     setError('');
     setSuccess('');
+
+    const scoreANum = Number(scoreA);
+    const scoreBNum = Number(scoreB);
+    const consistencyError = validatePredictionConsistency(
+      match,
+      predictedWinner,
+      scoreANum,
+      scoreBNum
+    );
+    if (consistencyError) {
+      setError(consistencyError);
+      return;
+    }
+
     setSaving(true);
     try {
       await api.post('/predictions', {
         matchId: id,
         predictedWinner,
-        scoreA: Number(scoreA),
-        scoreB: Number(scoreB),
+        scoreA: scoreANum,
+        scoreB: scoreBNum,
       });
       setSuccess('Prediction saved!');
       setTimeout(() => navigate('/matches'), 1200);
@@ -146,6 +165,7 @@ export default function Predict() {
             onSubmit={handleSubmit}
             loading={saving}
             locked={locked}
+            predictionStats={predictionStats}
           />
         </>
       )}

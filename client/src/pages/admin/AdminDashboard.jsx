@@ -4,7 +4,7 @@ import api from '../../api/client';
 import DateTimeInput from '../../components/DateTimeInput';
 import { formatDateTime, isoToDatetimeLocal, localDatetimeToISO } from '../../utils/format';
 
-const TABS = ['matches', 'predictions', 'customers'];
+const TABS = ['matches', 'teams', 'predictions', 'customers'];
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
@@ -12,6 +12,10 @@ export default function AdminDashboard() {
   const [matches, setMatches] = useState([]);
   const [predictions, setPredictions] = useState([]);
   const [statistics, setStatistics] = useState([]);
+  const [teams, setTeams] = useState([]);
+  const [teamName, setTeamName] = useState('');
+  const [editingTeamId, setEditingTeamId] = useState(null);
+  const [editTeamName, setEditTeamName] = useState('');
   const [expandedUser, setExpandedUser] = useState(null);
   const [form, setForm] = useState({ teamA: '', teamB: '', startTime: '', stage: '' });
   const [resultForm, setResultForm] = useState({});
@@ -67,14 +71,16 @@ Germany,France,2026-06-20T18:00:00.000Z,Group B,,`;
 
   const loadData = async () => {
     try {
-      const [m, p, s] = await Promise.all([
+      const [m, p, s, t] = await Promise.all([
         api.get('/admin/matches'),
         api.get('/admin/predictions'),
         api.get('/admin/users/statistics'),
+        api.get('/admin/teams'),
       ]);
       setMatches(m.data.matches);
       setPredictions(p.data.predictions);
       setStatistics(s.data.statistics);
+      setTeams(t.data.teams);
     } catch {
       logout();
     }
@@ -196,6 +202,51 @@ Germany,France,2026-06-20T18:00:00.000Z,Group B,,`;
     URL.revokeObjectURL(url);
   };
 
+  const createTeam = async (e) => {
+    e.preventDefault();
+    if (!teamName.trim()) return;
+    setError('');
+    setLoading(true);
+    try {
+      await api.post('/admin/teams', { name: teamName.trim() });
+      setTeamName('');
+      await loadData();
+    } catch (err) {
+      setError(err.response?.data?.error || 'Failed to create team');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const saveTeamEdit = async (teamId) => {
+    if (!editTeamName.trim()) return;
+    setLoading(true);
+    try {
+      await api.put(`/admin/teams/${teamId}`, { name: editTeamName.trim() });
+      setEditingTeamId(null);
+      setEditTeamName('');
+      await loadData();
+    } catch (err) {
+      setError(err.response?.data?.error || 'Failed to update team');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const toggleTeamActive = async (team) => {
+    setLoading(true);
+    try {
+      await api.put(`/admin/teams/${team._id}`, { isActive: !team.isActive });
+      await loadData();
+    } catch (err) {
+      setError(err.response?.data?.error || 'Failed to update team');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const activeTeams = teams.filter((t) => t.isActive);
+
   const saveEdit = async (matchId) => {
     setError('');
     setLoading(true);
@@ -247,20 +298,53 @@ Germany,France,2026-06-20T18:00:00.000Z,Group B,,`;
             <form onSubmit={createMatch} className="min-w-0 space-y-3 rounded-xl border border-white/10 bg-white/5 p-4">
               <h2 className="font-semibold">Add Match</h2>
               <div className="grid grid-cols-2 gap-2">
-                <input
-                  placeholder="Team A"
-                  required
-                  value={form.teamA}
-                  onChange={(e) => setForm({ ...form, teamA: e.target.value })}
-                  className="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm outline-none"
-                />
-                <input
-                  placeholder="Team B"
-                  required
-                  value={form.teamB}
-                  onChange={(e) => setForm({ ...form, teamB: e.target.value })}
-                  className="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm outline-none"
-                />
+                {activeTeams.length > 0 ? (
+                  <>
+                    <select
+                      required
+                      value={form.teamA}
+                      onChange={(e) => setForm({ ...form, teamA: e.target.value })}
+                      className="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm outline-none"
+                    >
+                      <option value="">Team A</option>
+                      {activeTeams.map((t) => (
+                        <option key={t._id} value={t.name}>
+                          {t.name}
+                        </option>
+                      ))}
+                    </select>
+                    <select
+                      required
+                      value={form.teamB}
+                      onChange={(e) => setForm({ ...form, teamB: e.target.value })}
+                      className="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm outline-none"
+                    >
+                      <option value="">Team B</option>
+                      {activeTeams.map((t) => (
+                        <option key={t._id} value={t.name}>
+                          {t.name}
+                        </option>
+                      ))}
+                    </select>
+                  </>
+                ) : (
+                  <>
+                    <input
+                      placeholder="Team A"
+                      required
+                      value={form.teamA}
+                      onChange={(e) => setForm({ ...form, teamA: e.target.value })}
+                      className="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm outline-none"
+                    />
+                    <input
+                      placeholder="Team B"
+                      required
+                      value={form.teamB}
+                      onChange={(e) => setForm({ ...form, teamB: e.target.value })}
+                      className="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm outline-none"
+                    />
+                  </>
+                )}
               </div>
               <DateTimeInput
                 required
@@ -469,6 +553,95 @@ Germany,France,2026-06-20T18:00:00.000Z,Group B,,`;
                           </button>
                         </div>
                       )}
+                    </>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {tab === 'teams' && (
+          <div className="space-y-6">
+            <form onSubmit={createTeam} className="space-y-3 rounded-xl border border-white/10 bg-white/5 p-4">
+              <h2 className="font-semibold">Add Team</h2>
+              <input
+                placeholder="Team name (e.g. Brazil)"
+                required
+                value={teamName}
+                onChange={(e) => setTeamName(e.target.value)}
+                className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm outline-none"
+              />
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full rounded-lg bg-fifa-green py-2 text-sm font-semibold disabled:opacity-50"
+              >
+                Add Team
+              </button>
+            </form>
+
+            <div className="space-y-2">
+              {teams.length === 0 && <p className="text-white/50">No teams yet</p>}
+              {teams.map((team) => (
+                <div
+                  key={team._id}
+                  className={`flex items-center justify-between rounded-xl border px-4 py-3 ${
+                    team.isActive ? 'border-white/10 bg-white/5' : 'border-white/5 bg-white/[0.02] opacity-60'
+                  }`}
+                >
+                  {editingTeamId === team._id ? (
+                    <div className="flex flex-1 gap-2">
+                      <input
+                        value={editTeamName}
+                        onChange={(e) => setEditTeamName(e.target.value)}
+                        className="flex-1 rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-sm outline-none"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => saveTeamEdit(team._id)}
+                        className="rounded-lg bg-fifa-green px-3 py-1.5 text-xs font-semibold"
+                      >
+                        Save
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setEditingTeamId(null);
+                          setEditTeamName('');
+                        }}
+                        className="rounded-lg bg-white/10 px-3 py-1.5 text-xs"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  ) : (
+                    <>
+                      <div>
+                        <p className="font-medium">{team.name}</p>
+                        <p className="text-xs text-white/40">
+                          {team.isActive ? 'Active' : 'Inactive'}
+                        </p>
+                      </div>
+                      <div className="flex gap-2">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setEditingTeamId(team._id);
+                            setEditTeamName(team.name);
+                          }}
+                          className="rounded-lg bg-white/10 px-3 py-1.5 text-xs"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => toggleTeamActive(team)}
+                          className="rounded-lg bg-white/10 px-3 py-1.5 text-xs"
+                        >
+                          {team.isActive ? 'Deactivate' : 'Activate'}
+                        </button>
+                      </div>
                     </>
                   )}
                 </div>

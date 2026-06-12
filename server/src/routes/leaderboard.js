@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import User from '../models/User.js';
+import { getLatestRankChangesForUsers } from '../services/rankSnapshot.js';
 
 const router = Router();
 
@@ -15,13 +16,28 @@ router.get('/', async (req, res, next) => {
       .limit(50)
       .select('displayName phoneNumber totalPoints');
 
+    const userIds = users.map((u) => u._id);
+    const latestChanges = await getLatestRankChangesForUsers(userIds);
+
     res.json({
-      leaderboard: users.map((user, index) => ({
-        rank: index + 1,
-        displayName: user.displayName || maskPhone(user.phoneNumber),
-        maskedPhone: maskPhone(user.phoneNumber),
-        totalPoints: user.totalPoints,
-      })),
+      leaderboard: users.map((user, index) => {
+        const latest = latestChanges.get(user._id.toString());
+        return {
+          rank: index + 1,
+          userId: user._id,
+          displayName: user.displayName || maskPhone(user.phoneNumber),
+          maskedPhone: maskPhone(user.phoneNumber),
+          totalPoints: user.totalPoints,
+          rankChange: latest?.rankChange ?? null,
+          lastMatch: latest?.match
+            ? {
+                teamA: latest.match.teamA,
+                teamB: latest.match.teamB,
+                stage: latest.match.stage,
+              }
+            : null,
+        };
+      }),
     });
   } catch (err) {
     next(err);

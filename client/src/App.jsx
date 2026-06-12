@@ -6,6 +6,8 @@ import Matches from './pages/Matches';
 import Predict from './pages/Predict';
 import Leaderboard from './pages/Leaderboard';
 import MyPredictions from './pages/MyPredictions';
+import Profile from './pages/Profile';
+import FanShed from './pages/FanShed';
 import AdminLogin from './pages/admin/AdminLogin';
 import AdminDashboard from './pages/admin/AdminDashboard';
 
@@ -53,6 +55,22 @@ export default function App() {
         element={
           <ProtectedRoute>
             <MyPredictions />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/profile"
+        element={
+          <ProtectedRoute>
+            <Profile />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/fan-shed"
+        element={
+          <ProtectedRoute>
+            <FanShed />
           </ProtectedRoute>
         }
       />

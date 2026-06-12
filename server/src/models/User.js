@@ -17,6 +17,11 @@ const userSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    favoriteTeam: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Team',
+      default: null,
+    },
   },
   { timestamps: true }
 );

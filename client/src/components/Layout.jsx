@@ -7,8 +7,10 @@ export default function Layout({ children, showNav = true }) {
 
   const navItems = [
     { to: '/matches', label: 'Matches', icon: '⚽' },
-    { to: '/leaderboard', label: 'Leaderboard', icon: '🏆' },
-    { to: '/my-predictions', label: 'My Picks', icon: '📋' },
+    { to: '/leaderboard', label: 'Board', icon: '🏆' },
+    { to: '/my-predictions', label: 'Picks', icon: '📋' },
+    { to: '/fan-shed', label: 'Fans', icon: '📣' },
+    { to: '/profile', label: 'Profile', icon: '👤' },
   ];
 
   return (
@@ -18,9 +20,9 @@ export default function Layout({ children, showNav = true }) {
           <div>
             <h1 className="text-lg font-bold text-fifa-gold">FIFA WC 2026</h1>
             {user && (
-              <p className="text-xs text-white/60">
+              <Link to="/profile" className="text-xs text-white/60 hover:text-fifa-gold">
                 {user.displayName || user.phoneNumber} · {user.totalPoints} pts
-              </p>
+              </Link>
             )}
           </div>
           <Link to="/admin" className="text-xs text-white/40 hover:text-white/70">

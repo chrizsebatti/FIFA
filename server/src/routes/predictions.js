@@ -3,6 +3,7 @@ import Match from '../models/Match.js';
 import Prediction from '../models/Prediction.js';
 import { auth } from '../middleware/auth.js';
 import { isLocked } from '../services/predictionLock.js';
+import { validatePredictionConsistency } from '../services/predictionValidation.js';
 
 const router = Router();
 
@@ -51,6 +52,16 @@ router.post('/', auth, async (req, res, next) => {
     const scoreBNum = Number(scoreB);
     if (scoreANum < 0 || scoreBNum < 0 || !Number.isInteger(scoreANum) || !Number.isInteger(scoreBNum)) {
       return res.status(400).json({ error: 'Scores must be non-negative integers' });
+    }
+
+    const consistencyError = validatePredictionConsistency(
+      match,
+      predictedWinner,
+      scoreANum,
+      scoreBNum
+    );
+    if (consistencyError) {
+      return res.status(400).json({ error: consistencyError });
     }
 
     const prediction = await Prediction.findOneAndUpdate(

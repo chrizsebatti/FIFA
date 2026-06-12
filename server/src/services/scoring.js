@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import Prediction from '../models/Prediction.js';
 import User from '../models/User.js';
+import { snapshotLeaderboardRanks } from './rankSnapshot.js';
 
 export function calculatePoints(prediction, match) {
   const winnerCorrect = prediction.predictedWinner === match.winner;
@@ -44,4 +45,6 @@ export async function scoreMatch(match) {
     const totalPoints = result[0]?.total || 0;
     await User.findByIdAndUpdate(userId, { totalPoints });
   }
+
+  await snapshotLeaderboardRanks(match._id);
 }

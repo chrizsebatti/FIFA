@@ -9,9 +9,7 @@ export default function MatchResultLeaderboard({ match, participants }) {
   const { user } = useAuth();
   const winners = participants.filter((p) => p.isWinner);
 
-  const isMe = (entry) =>
-    entry.displayName === (user?.displayName || '') ||
-    entry.maskedPhone === `***${user?.phoneNumber?.slice(-4)}`;
+  const isMe = (entry) => entry.userId === user?._id;
 
   const rowClass = (entry) => {
     if (entry.pointsEarned === 100) {

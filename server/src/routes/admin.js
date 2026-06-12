@@ -2,6 +2,7 @@ import { Router } from 'express';
 import jwt from 'jsonwebtoken';
 import Match from '../models/Match.js';
 import Prediction from '../models/Prediction.js';
+import Team from '../models/Team.js';
 import User from '../models/User.js';
 import { adminAuth } from '../middleware/adminAuth.js';
 import { importPredictions } from '../services/bulkPredictionImport.js';
@@ -246,6 +247,68 @@ router.get('/users/statistics', adminAuth, async (req, res, next) => {
     );
 
     res.json({ statistics });
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.get('/teams', adminAuth, async (req, res, next) => {
+  try {
+    const teams = await Team.find().sort({ name: 1 });
+    res.json({ teams });
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.post('/teams', adminAuth, async (req, res, next) => {
+  try {
+    const { name } = req.body;
+    if (!name?.trim()) {
+      return res.status(400).json({ error: 'Team name is required' });
+    }
+    const team = await Team.create({ name: name.trim() });
+    res.status(201).json({ team });
+  } catch (err) {
+    if (err.code === 11000) {
+      return res.status(400).json({ error: 'Team already exists' });
+    }
+    next(err);
+  }
+});
+
+router.put('/teams/:id', adminAuth, async (req, res, next) => {
+  try {
+    const { name, isActive } = req.body;
+    const team = await Team.findById(req.params.id);
+    if (!team) {
+      return res.status(404).json({ error: 'Team not found' });
+    }
+    if (name?.trim()) {
+      team.name = name.trim();
+    }
+    if (isActive !== undefined) {
+      team.isActive = Boolean(isActive);
+    }
+    await team.save();
+    res.json({ team });
+  } catch (err) {
+    if (err.code === 11000) {
+      return res.status(400).json({ error: 'Team name already exists' });
+    }
+    next(err);
+  }
+});
+
+router.delete('/teams/:id', adminAuth, async (req, res, next) => {
+  try {
+    const team = await Team.findById(req.params.id);
+    if (!team) {
+      return res.status(404).json({ error: 'Team not found' });
+    }
+    team.isActive = false;
+    await team.save();
+    res.json({ team });
   } catch (err) {
     next(err);
   }

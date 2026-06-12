@@ -22,7 +22,7 @@ export function auth(req, res, next) {
 
 export async function attachUser(req, res, next) {
   try {
-    req.user = await User.findById(req.userId);
+    req.user = await User.findById(req.userId).populate('favoriteTeam', 'name');
     if (!req.user) {
       return res.status(401).json({ error: 'User not found' });
     }
