@@ -1,5 +1,6 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
+import FootballLoader from './components/FootballLoader';
 import Join from './pages/Join';
 import Matches from './pages/Matches';
 import Predict from './pages/Predict';
@@ -10,13 +11,7 @@ import AdminDashboard from './pages/admin/AdminDashboard';
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
-  if (loading) {
-    return (
-      <div className="flex min-h-dvh items-center justify-center bg-fifa-dark">
-        <p className="text-white/50">Loading...</p>
-      </div>
-    );
-  }
+  if (loading) return null;
   if (!user) return <Navigate to="/" replace />;
   return children;
 }
@@ -24,16 +19,10 @@ function ProtectedRoute({ children }) {
 export default function App() {
   const { user, loading } = useAuth();
 
-  if (loading) {
-    return (
-      <div className="flex min-h-dvh items-center justify-center bg-fifa-dark">
-        <p className="text-white/50">Loading...</p>
-      </div>
-    );
-  }
-
   return (
-    <Routes>
+    <>
+      <FootballLoader show={loading} />
+      <Routes>
       <Route path="/" element={user ? <Navigate to="/matches" replace /> : <Join />} />
       <Route
         path="/matches"
@@ -71,5 +60,6 @@ export default function App() {
       <Route path="/admin/dashboard" element={<AdminDashboard />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
+    </>
   );
 }

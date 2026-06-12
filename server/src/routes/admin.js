@@ -4,7 +4,9 @@ import Match from '../models/Match.js';
 import Prediction from '../models/Prediction.js';
 import User from '../models/User.js';
 import { adminAuth } from '../middleware/adminAuth.js';
-import { getWinner, scoreMatch } from '../services/scoring.js';
+import { importPredictions } from '../services/bulkPredictionImport.js';
+import { normalizeImportRows, parseImportPayload } from '../services/bulkImport.js';
+import { getPointsReason, getWinner, scoreMatch } from '../services/scoring.js';
 import { isLocked } from '../services/predictionLock.js';
 
 const router = Router();
@@ -31,6 +33,49 @@ router.get('/matches', adminAuth, async (req, res, next) => {
         ...m.toObject(),
         isLocked: isLocked(m),
       })),
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.post('/matches/bulk', adminAuth, async (req, res, next) => {
+  try {
+    const { format, data } = req.body;
+    if (!format || data == null) {
+      return res.status(400).json({ error: 'format and data are required' });
+    }
+
+    let rows;
+    try {
+      rows = parseImportPayload({ format, data });
+    } catch (err) {
+      return res.status(400).json({ error: err.message });
+    }
+
+    if (rows.length === 0) {
+      return res.status(400).json({ error: 'No matches to import' });
+    }
+
+    let normalized;
+    try {
+      normalized = normalizeImportRows(rows);
+    } catch (err) {
+      return res.status(400).json({ error: err.message });
+    }
+
+    const created = await Match.insertMany(normalized);
+
+    for (const match of created) {
+      if (match.status === 'finished') {
+        await scoreMatch(match);
+      }
+    }
+
+    res.status(201).json({
+      imported: created.length,
+      finished: created.filter((m) => m.status === 'finished').length,
+      upcoming: created.filter((m) => m.status !== 'finished').length,
     });
   } catch (err) {
     next(err);
@@ -109,6 +154,23 @@ router.delete('/matches/:id', adminAuth, async (req, res, next) => {
   }
 });
 
+router.post('/predictions/bulk', adminAuth, async (req, res, next) => {
+  try {
+    const { format, data } = req.body;
+    if (!format || data == null) {
+      return res.status(400).json({ error: 'format and data are required' });
+    }
+
+    const result = await importPredictions({ format, data });
+    res.status(201).json(result);
+  } catch (err) {
+    if (err.message.includes('JSON') || err.message.includes('CSV') || err.message.includes('import')) {
+      return res.status(400).json({ error: err.message });
+    }
+    next(err);
+  }
+});
+
 router.get('/predictions', adminAuth, async (req, res, next) => {
   try {
     const predictions = await Prediction.find()
@@ -126,6 +188,64 @@ router.get('/users', adminAuth, async (req, res, next) => {
   try {
     const users = await User.find().sort({ totalPoints: -1, createdAt: 1 });
     res.json({ users });
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.get('/users/statistics', adminAuth, async (req, res, next) => {
+  try {
+    const users = await User.find().sort({ totalPoints: -1, createdAt: 1 });
+
+    const statistics = await Promise.all(
+      users.map(async (user) => {
+        const predictions = await Prediction.find({ user: user._id })
+          .populate('match')
+          .sort({ createdAt: -1 });
+
+        const breakdown = predictions.map((p) => ({
+          predictionId: p._id,
+          match: p.match
+            ? {
+                _id: p.match._id,
+                teamA: p.match.teamA,
+                teamB: p.match.teamB,
+                stage: p.match.stage,
+                status: p.match.status,
+                scoreA: p.match.scoreA,
+                scoreB: p.match.scoreB,
+                winner: p.match.winner,
+              }
+            : null,
+          predictedWinner: p.predictedWinner,
+          predictedScoreA: p.scoreA,
+          predictedScoreB: p.scoreB,
+          pointsEarned: p.pointsEarned,
+          reason: getPointsReason(p, p.match),
+        }));
+
+        const finished = breakdown.filter((b) => b.match?.status === 'finished');
+
+        return {
+          user: {
+            _id: user._id,
+            phoneNumber: user.phoneNumber,
+            displayName: user.displayName,
+            totalPoints: user.totalPoints,
+          },
+          summary: {
+            totalPredictions: breakdown.length,
+            pending: breakdown.filter((b) => b.match?.status !== 'finished').length,
+            perfectScores: finished.filter((b) => b.pointsEarned === 100).length,
+            winnerOnly: finished.filter((b) => b.pointsEarned === 50).length,
+            incorrect: finished.filter((b) => b.pointsEarned === 0).length,
+          },
+          breakdown,
+        };
+      })
+    );
+
+    res.json({ statistics });
   } catch (err) {
     next(err);
   }

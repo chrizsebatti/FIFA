@@ -12,6 +12,14 @@ export function calculatePoints(prediction, match) {
   return 0;
 }
 
+export function getPointsReason(prediction, match) {
+  if (!match || match.status !== 'finished') return 'Pending — match not finished';
+  const points = calculatePoints(prediction, match);
+  if (points === 100) return 'Correct winner + exact score';
+  if (points === 50) return 'Correct winner only';
+  return 'Incorrect prediction';
+}
+
 export function getWinner(teamA, teamB, scoreA, scoreB) {
   if (scoreA > scoreB) return teamA;
   if (scoreB > scoreA) return teamB;

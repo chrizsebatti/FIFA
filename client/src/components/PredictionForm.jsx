@@ -82,7 +82,9 @@ export default function PredictionForm({
 
       {locked && (
         <div className="rounded-xl bg-red-600/20 px-4 py-3 text-center text-sm text-red-300">
-          Predictions are closed for this match
+          {match.status === 'finished'
+            ? 'Match finished — predictions are closed'
+            : 'Game started — predictions are closed'}
         </div>
       )}
     </form>
