@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import api from '../api/client';
 import Layout from '../components/Layout';
 import MatchCard from '../components/MatchCard';
+import MyPredictionsLoader from '../components/MyPredictionsLoader';
 
 export default function MyPredictions() {
   const [predictions, setPredictions] = useState([]);
@@ -18,7 +19,7 @@ export default function MyPredictions() {
   return (
     <Layout>
       <h2 className="mb-4 text-xl font-bold text-gray-900">My Predictions</h2>
-      {loading && <p className="text-gray-500">Loading...</p>}
+      {loading && <MyPredictionsLoader />}
       {!loading && predictions.length === 0 && (
         <div className="text-center">
           <p className="text-gray-500">No predictions yet</p>
@@ -27,6 +28,7 @@ export default function MyPredictions() {
           </Link>
         </div>
       )}
+      {!loading && (
       <div className="space-y-3">
         {predictions.map((p) =>
           p.match ? (
@@ -41,6 +43,7 @@ export default function MyPredictions() {
           )
         )}
       </div>
+      )}
     </Layout>
   );
 }

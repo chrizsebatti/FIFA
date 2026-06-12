@@ -3,6 +3,7 @@ import api from '../api/client';
 import { NoMatchesInProgressIcon, NoUpcomingMatchesIcon } from '../components/EmptyStateIcons';
 import Layout from '../components/Layout';
 import MatchCard from '../components/MatchCard';
+import MatchListLoader from '../components/MatchListLoader';
 import { getMatchTab } from '../utils/format';
 
 const TABS = [
@@ -65,7 +66,7 @@ export default function Matches() {
         ))}
       </div>
 
-      {loading && <p className="text-gray-500">Loading matches...</p>}
+      {loading && <MatchListLoader />}
       {error && <p className="text-red-400">{error}</p>}
       {!loading && !error && filteredMatches.length === 0 && (
         tab === 'upcoming' ? (
@@ -88,11 +89,13 @@ export default function Matches() {
           <p className="text-gray-500">{EMPTY_MESSAGES[tab]}</p>
         )
       )}
-      <div className="space-y-3">
-        {filteredMatches.map((match) => (
-          <MatchCard key={match._id} match={match} prediction={predictions[match._id]} />
-        ))}
-      </div>
+      {!loading && (
+        <div className="space-y-3">
+          {filteredMatches.map((match) => (
+            <MatchCard key={match._id} match={match} prediction={predictions[match._id]} />
+          ))}
+        </div>
+      )}
     </Layout>
   );
 }

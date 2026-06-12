@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import api from '../api/client';
 import Layout from '../components/Layout';
+import LeaderboardLoader from '../components/LeaderboardLoader';
 import RankArrow from '../components/RankArrow';
 import { useAuth } from '../context/AuthContext';
 
@@ -27,7 +28,8 @@ export default function Leaderboard() {
       <p className="mb-4 text-xs text-gray-500">
         ▲ moved up · ▼ moved down after last scored match
       </p>
-      {loading && <p className="text-gray-500">Loading...</p>}
+      {loading && <LeaderboardLoader />}
+      {!loading && (
       <div className="space-y-2">
         {entries.map((entry) => {
           const isMe = entry.userId === user?._id;
@@ -68,6 +70,7 @@ export default function Leaderboard() {
           );
         })}
       </div>
+      )}
     </Layout>
   );
 }
