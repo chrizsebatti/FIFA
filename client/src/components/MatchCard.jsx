@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import MatchCountdown from './MatchCountdown';
 import { formatDateTime, getMatchStatus, statusLabel } from '../utils/format';
 
 function pickLabel(winner) {
@@ -12,7 +13,7 @@ export default function MatchCard({ match, prediction }) {
 
   return (
     <Link
-      to={`/matches/${match._id}/predict`}
+      to={`/matches/${match._id}/predict#predict`}
       className="block overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition active:scale-[0.98]"
     >
       <div className="p-4">
@@ -36,11 +37,22 @@ export default function MatchCard({ match, prediction }) {
             )}
           </div>
         </div>
-        <div className="mt-3 flex items-center justify-between gap-2">
-          <p className="text-xs text-gray-500">{formatDateTime(match.startTime)}</p>
-          <span className={`shrink-0 rounded-full px-2.5 py-0.5 text-xs font-medium ${badge.className}`}>
-            {badge.text}
-          </span>
+        <div className="mt-3 space-y-2">
+          {!isFinished && (
+            <MatchCountdown
+              startTime={match.startTime}
+              isFinished={isFinished}
+              isLive={status === 'started'}
+              size="compact"
+              className="w-full"
+            />
+          )}
+          <div className="flex items-center justify-between gap-2">
+            <p className="text-xs text-gray-500">{formatDateTime(match.startTime)}</p>
+            <span className={`shrink-0 rounded-full px-2.5 py-0.5 text-xs font-medium ${badge.className}`}>
+              {badge.text}
+            </span>
+          </div>
         </div>
       </div>
 
