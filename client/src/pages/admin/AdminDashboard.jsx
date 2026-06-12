@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../api/client';
+import DateTimeInput from '../../components/DateTimeInput';
 import { formatDateTime, isoToDatetimeLocal, localDatetimeToISO } from '../../utils/format';
 
 const TABS = ['matches', 'predictions', 'customers'];
@@ -243,7 +244,7 @@ Germany,France,2026-06-20T18:00:00.000Z,Group B,,`;
 
         {tab === 'matches' && (
           <div className="space-y-6">
-            <form onSubmit={createMatch} className="space-y-3 rounded-xl border border-white/10 bg-white/5 p-4">
+            <form onSubmit={createMatch} className="min-w-0 space-y-3 rounded-xl border border-white/10 bg-white/5 p-4">
               <h2 className="font-semibold">Add Match</h2>
               <div className="grid grid-cols-2 gap-2">
                 <input
@@ -261,14 +262,12 @@ Germany,France,2026-06-20T18:00:00.000Z,Group B,,`;
                   className="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm outline-none"
                 />
               </div>
-              <input
-                type="datetime-local"
+              <DateTimeInput
                 required
                 value={form.startTime}
-                onChange={(e) => setForm({ ...form, startTime: e.target.value })}
-                className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm outline-none"
+                onChange={(startTime) => setForm({ ...form, startTime })}
               />
-              <p className="text-xs text-white/40">Time is in your local timezone</p>
+              <p className="text-xs text-white/40">Date & time in your local timezone</p>
               <input
                 placeholder="Stage (e.g. Group A)"
                 value={form.stage}
@@ -369,12 +368,10 @@ Germany,France,2026-06-20T18:00:00.000Z,Group B,,`;
                           className="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm outline-none"
                         />
                       </div>
-                      <input
-                        type="datetime-local"
+                      <DateTimeInput
                         required
                         value={editForm.startTime}
-                        onChange={(e) => setEditForm({ ...editForm, startTime: e.target.value })}
-                        className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm outline-none"
+                        onChange={(startTime) => setEditForm({ ...editForm, startTime })}
                       />
                       <input
                         placeholder="Stage (e.g. Group A)"

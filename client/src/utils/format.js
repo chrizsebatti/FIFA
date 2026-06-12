@@ -22,6 +22,17 @@ export function isoToDatetimeLocal(isoString) {
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
 }
 
+export function splitDatetimeLocal(value) {
+  if (!value) return { date: '', time: '' };
+  const [date, timePart] = value.split('T');
+  return { date: date || '', time: timePart?.slice(0, 5) || '' };
+}
+
+export function joinDatetimeLocal(date, time) {
+  if (!date || !time) return '';
+  return `${date}T${time}`;
+}
+
 export function getMatchStatus(match) {
   if (match.status === 'finished') return 'finished';
   if (new Date() >= new Date(match.startTime)) return 'started';

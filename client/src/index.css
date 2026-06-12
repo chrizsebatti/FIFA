@@ -11,6 +11,21 @@ body {
   min-height: 100dvh;
 }
 
+input[type='date'].date-time-input,
+input[type='time'].date-time-input {
+  display: block;
+  box-sizing: border-box;
+  color-scheme: dark;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+input[type='date'].date-time-input::-webkit-date-and-time-value,
+input[type='time'].date-time-input::-webkit-date-and-time-value {
+  min-width: 0;
+  text-align: left;
+}
+
 .loader-glow {
   animation: loader-pulse 2s ease-in-out infinite;
 }
