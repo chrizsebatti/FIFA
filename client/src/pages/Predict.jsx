@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import api from '../api/client';
 import Layout from '../components/Layout';
+import MatchDetailLoader from '../components/MatchDetailLoader';
 import MatchResultLeaderboard from '../components/MatchResultLeaderboard';
 import PredictionForm from '../components/PredictionForm';
 import { formatDateTime, getMatchStatus, statusLabel } from '../utils/format';
@@ -106,7 +107,7 @@ export default function Predict() {
   if (loading) {
     return (
       <Layout>
-        <p className="text-gray-500">Loading...</p>
+        <MatchDetailLoader />
       </Layout>
     );
   }

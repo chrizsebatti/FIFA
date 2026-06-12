@@ -24,7 +24,7 @@ export default function Layout({
   return (
     <div className={`flex min-h-dvh flex-col ${isDark ? 'bg-[#0a0a0a]' : 'bg-white'}`}>
       {!hideHeader && (
-        <header className="sticky top-0 z-10 border-b border-[#FF6D00]/25 bg-gradient-to-b from-[#FF6D00]/20 via-[#FF6D00]/10 to-white px-4 pb-3 pt-[calc(env(safe-area-inset-top,0px)+0.75rem)] shadow-sm backdrop-blur">
+        <header className="sticky top-0 z-10 border-[#FF6D00]/25 bg-gradient-to-b from-[#FF6D00]/20 via-[#FF6D00]/10 to-white px-4 pb-3 pt-[calc(env(safe-area-inset-top,0px)+0.75rem)] backdrop-blur">
           <div className="mx-auto flex max-w-lg items-center justify-between">
             <div>
               <h1 className="text-lg font-bold text-[#FF6D00]">FIFA WC 2026</h1>
