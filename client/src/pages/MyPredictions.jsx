@@ -30,7 +30,7 @@ export default function MyPredictions() {
       <div className="space-y-3">
         {predictions.map((p) =>
           p.match ? (
-            <MatchCard key={p._id} match={p.match} prediction={p} />
+            <MatchCard key={p._id} match={p.match} prediction={p} returnTo="/my-predictions" />
           ) : (
             <div
               key={p._id}

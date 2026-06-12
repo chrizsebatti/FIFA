@@ -1,4 +1,4 @@
-import { Navigate, Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 import FootballLoader from './components/FootballLoader';
 import Join from './pages/Join';
@@ -13,8 +13,12 @@ import AdminDashboard from './pages/admin/AdminDashboard';
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
+  const location = useLocation();
   if (loading) return null;
-  if (!user) return <Navigate to="/" replace />;
+  if (!user) {
+    const returnTo = `${location.pathname}${location.search}${location.hash}`;
+    return <Navigate to="/" replace state={{ from: returnTo }} />;
+  }
   return children;
 }
 

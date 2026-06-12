@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../api/client';
 import DateTimeInput from '../../components/DateTimeInput';
+import IconActionButton, { DeleteIcon, EditIcon } from '../../components/IconActionButton';
+import ShareMatchButton from '../../components/ShareMatchButton';
 import { formatDateTime, isoToDatetimeLocal, localDatetimeToISO } from '../../utils/format';
 
 const TABS = ['matches', 'teams', 'predictions', 'customers'];
@@ -458,7 +460,24 @@ Germany,France,2026-06-20T18:00:00.000Z,Group B,,`;
 
             <div className="space-y-3">
               {matches.map((match) => (
-                <div key={match._id} className="rounded-xl border border-gray-200 bg-gray-50 p-4">
+                <div key={match._id} className="relative rounded-xl border border-gray-200 bg-gray-50 p-4">
+                  {editingId !== match._id && (
+                    <div className="absolute right-3 top-3 z-10 flex items-center gap-1">
+                      {match.status !== 'finished' && <ShareMatchButton match={match} />}
+                      {match.status !== 'finished' && (
+                        <IconActionButton title="Edit match" variant="orange" onClick={() => startEdit(match)}>
+                          <EditIcon />
+                        </IconActionButton>
+                      )}
+                      <IconActionButton
+                        title="Delete match"
+                        variant="red"
+                        onClick={() => deleteMatch(match._id)}
+                      >
+                        <DeleteIcon />
+                      </IconActionButton>
+                    </div>
+                  )}
                   {editingId === match._id ? (
                     <div className="space-y-3">
                       <h3 className="text-sm font-semibold text-fifa-primary">Edit Match</h3>
@@ -509,38 +528,20 @@ Germany,France,2026-06-20T18:00:00.000Z,Group B,,`;
                     </div>
                   ) : (
                     <>
-                      <div className="flex items-start justify-between">
-                        <div>
-                          <p className="text-xs text-fifa-primary">{match.stage || 'Match'}</p>
-                          <p className="font-semibold">
-                            {match.teamA} vs {match.teamB}
+                      <div className="pr-24">
+                        <p className="text-xs text-fifa-primary">{match.stage || 'Match'}</p>
+                        <p className="font-semibold">
+                          {match.teamA} vs {match.teamB}
+                        </p>
+                        <p className="text-xs text-gray-500">{formatDateTime(match.startTime)}</p>
+                        <p className="mt-1 break-all text-[10px] text-gray-400">
+                          ID: {match._id}
+                        </p>
+                        {match.status === 'finished' && (
+                          <p className="mt-1 text-sm">
+                            Result: {match.scoreA}-{match.scoreB} (Winner: {match.winner})
                           </p>
-                          <p className="text-xs text-gray-500">{formatDateTime(match.startTime)}</p>
-                          <p className="mt-1 break-all text-[10px] text-gray-400">
-                            ID: {match._id}
-                          </p>
-                          {match.status === 'finished' && (
-                            <p className="mt-1 text-sm">
-                              Result: {match.scoreA}-{match.scoreB} (Winner: {match.winner})
-                            </p>
-                          )}
-                        </div>
-                        <div className="flex flex-col items-end gap-1">
-                          {match.status !== 'finished' && (
-                            <button
-                              onClick={() => startEdit(match)}
-                              className="text-xs text-fifa-primary"
-                            >
-                              Edit
-                            </button>
-                          )}
-                          <button
-                            onClick={() => deleteMatch(match._id)}
-                            className="text-xs text-red-400"
-                          >
-                            Delete
-                          </button>
-                        </div>
+                        )}
                       </div>
                       {match.status !== 'finished' && (
                         <div className="mt-3 flex items-center gap-2">

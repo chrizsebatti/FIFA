@@ -6,7 +6,7 @@ function pickLabel(winner) {
   return winner === 'draw' ? 'Draw' : winner;
 }
 
-export default function MatchCard({ match, prediction }) {
+export default function MatchCard({ match, prediction, returnTo = '/matches' }) {
   const status = getMatchStatus(match);
   const badge = statusLabel(status);
   const isFinished = match.status === 'finished';
@@ -14,6 +14,7 @@ export default function MatchCard({ match, prediction }) {
   return (
     <Link
       to={`/matches/${match._id}/predict#predict`}
+      state={{ from: returnTo }}
       className="block overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition active:scale-[0.98]"
     >
       <div className="p-4">

@@ -127,7 +127,8 @@ export default function Predict() {
   return (
     <Layout>
       <button
-        onClick={() => navigate(-1)}
+        type="button"
+        onClick={() => navigate(location.state?.from || '/matches')}
         className="mb-4 text-sm text-gray-500 hover:text-gray-900"
       >
         ← Back

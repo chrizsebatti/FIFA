@@ -1,11 +1,13 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Layout from '../components/Layout';
 
 export default function Join() {
   const { join } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const returnTo = location.state?.from || '/matches';
   const [phoneNumber, setPhoneNumber] = useState('');
   const [displayName, setDisplayName] = useState('');
   const [error, setError] = useState('');
@@ -17,7 +19,7 @@ export default function Join() {
     setLoading(true);
     try {
       await join(phoneNumber, displayName);
-      navigate('/matches');
+      navigate(returnTo, { replace: true, state: { from: '/matches' } });
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to join');
     } finally {
@@ -31,7 +33,11 @@ export default function Join() {
         <div className="mb-8 text-center">
           <div className="mb-2 text-5xl">⚽</div>
           <h2 className="text-2xl font-bold text-fifa-primary">FIFA WC 2026</h2>
-          <p className="mt-2 text-gray-500">Predict winners & scores to earn points</p>
+          <p className="mt-2 text-gray-500">
+            {returnTo.includes('/predict')
+              ? 'Join to predict this match'
+              : 'Predict winners & scores to earn points'}
+          </p>
         </div>
 
         <div className="mb-6 rounded-xl bg-gray-50 p-4 text-sm text-gray-600">
