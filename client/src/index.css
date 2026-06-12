@@ -15,15 +15,22 @@ input[type='date'].date-time-input,
 input[type='time'].date-time-input {
   display: block;
   box-sizing: border-box;
+  color: #fff;
+  -webkit-text-fill-color: #fff;
   color-scheme: dark;
-  -webkit-appearance: none;
-  appearance: none;
 }
 
 input[type='date'].date-time-input::-webkit-date-and-time-value,
 input[type='time'].date-time-input::-webkit-date-and-time-value {
   min-width: 0;
   text-align: left;
+  color: #fff;
+}
+
+input[type='date'].date-time-input:invalid,
+input[type='time'].date-time-input:invalid {
+  color: rgba(255, 255, 255, 0.4);
+  -webkit-text-fill-color: rgba(255, 255, 255, 0.4);
 }
 
 .loader-glow {
