@@ -15,6 +15,40 @@ router.get('/', async (req, res, next) => {
   }
 });
 
+function maskPhone(phone) {
+  if (!phone || phone.length < 4) return '****';
+  return `***${phone.slice(-4)}`;
+}
+
+router.get('/:id/participants', async (req, res, next) => {
+  try {
+    const match = await Match.findById(req.params.id);
+    if (!match) {
+      return res.status(404).json({ error: 'Match not found' });
+    }
+
+    const predictions = await Prediction.find({ match: match._id })
+      .populate('user', 'displayName phoneNumber')
+      .sort({ pointsEarned: -1, createdAt: 1 });
+
+    res.json({
+      match: formatMatch(match),
+      participants: predictions.map((p, index) => ({
+        rank: index + 1,
+        displayName: p.user?.displayName || maskPhone(p.user?.phoneNumber),
+        maskedPhone: maskPhone(p.user?.phoneNumber),
+        predictedWinner: p.predictedWinner,
+        scoreA: p.scoreA,
+        scoreB: p.scoreB,
+        pointsEarned: p.pointsEarned,
+        isWinner: p.pointsEarned > 0,
+      })),
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
 router.get('/:id', async (req, res, next) => {
   try {
     const match = await Match.findById(req.params.id);

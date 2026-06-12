@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import api from '../api/client';
 import Layout from '../components/Layout';
+import MatchResultLeaderboard from '../components/MatchResultLeaderboard';
 import PredictionForm from '../components/PredictionForm';
 import { formatDateTime, getMatchStatus, statusLabel } from '../utils/format';
 
@@ -9,6 +10,8 @@ export default function Predict() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [match, setMatch] = useState(null);
+  const [prediction, setPrediction] = useState(null);
+  const [participants, setParticipants] = useState([]);
   const [predictedWinner, setPredictedWinner] = useState('');
   const [scoreA, setScoreA] = useState('0');
   const [scoreB, setScoreB] = useState('0');
@@ -23,9 +26,15 @@ export default function Predict() {
       .then((res) => {
         setMatch(res.data.match);
         if (res.data.prediction) {
+          setPrediction(res.data.prediction);
           setPredictedWinner(res.data.prediction.predictedWinner);
           setScoreA(String(res.data.prediction.scoreA));
           setScoreB(String(res.data.prediction.scoreB));
+        }
+        if (res.data.match?.status === 'finished') {
+          return api.get(`/matches/${id}/participants`).then((pRes) => {
+            setParticipants(pRes.data.participants);
+          });
         }
       })
       .catch(() => setError('Failed to load match'))
@@ -72,6 +81,7 @@ export default function Predict() {
   const status = getMatchStatus(match);
   const badge = statusLabel(status);
   const locked = match.isLocked;
+  const isFinished = match.status === 'finished';
 
   return (
     <Layout>
@@ -87,9 +97,19 @@ export default function Predict() {
           <p className="mb-1 text-xs font-medium uppercase text-fifa-gold">{match.stage}</p>
         )}
         <div className="flex items-center justify-between gap-4">
-          <p className="flex-1 text-lg font-bold">{match.teamA}</p>
+          <div className="flex-1">
+            <p className="text-lg font-bold">{match.teamA}</p>
+            {isFinished && (
+              <p className="text-2xl font-bold text-fifa-gold">{match.scoreA}</p>
+            )}
+          </div>
           <span className="text-white/30">vs</span>
-          <p className="flex-1 text-lg font-bold">{match.teamB}</p>
+          <div className="flex-1">
+            <p className="text-lg font-bold">{match.teamB}</p>
+            {isFinished && (
+              <p className="text-2xl font-bold text-fifa-gold">{match.scoreB}</p>
+            )}
+          </div>
         </div>
         <p className="mt-2 text-xs text-white/50">{formatDateTime(match.startTime)}</p>
         <span className={`mt-2 inline-block rounded-full px-3 py-1 text-xs font-medium ${badge.className}`}>
@@ -97,21 +117,38 @@ export default function Predict() {
         </span>
       </div>
 
-      {error && <p className="mb-4 text-sm text-red-400">{error}</p>}
-      {success && <p className="mb-4 text-sm text-green-400">{success}</p>}
-
-      <PredictionForm
-        match={match}
-        predictedWinner={predictedWinner}
-        setPredictedWinner={setPredictedWinner}
-        scoreA={scoreA}
-        setScoreA={setScoreA}
-        scoreB={scoreB}
-        setScoreB={setScoreB}
-        onSubmit={handleSubmit}
-        loading={saving}
-        locked={locked}
-      />
+      {isFinished ? (
+        <>
+          {prediction && (
+            <div className="mb-4 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm">
+              <p className="text-white/50">Your prediction</p>
+              <p className="font-medium">
+                {prediction.predictedWinner === 'draw' ? 'Draw' : prediction.predictedWinner} (
+                {prediction.scoreA}-{prediction.scoreB})
+                <span className="ml-2 text-fifa-gold">+{prediction.pointsEarned} pts</span>
+              </p>
+            </div>
+          )}
+          <MatchResultLeaderboard match={match} participants={participants} />
+        </>
+      ) : (
+        <>
+          {error && <p className="mb-4 text-sm text-red-400">{error}</p>}
+          {success && <p className="mb-4 text-sm text-green-400">{success}</p>}
+          <PredictionForm
+            match={match}
+            predictedWinner={predictedWinner}
+            setPredictedWinner={setPredictedWinner}
+            scoreA={scoreA}
+            setScoreA={setScoreA}
+            scoreB={scoreB}
+            setScoreB={setScoreB}
+            onSubmit={handleSubmit}
+            loading={saving}
+            locked={locked}
+          />
+        </>
+      )}
     </Layout>
   );
 }

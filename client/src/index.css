@@ -96,3 +96,31 @@ input[type='time'].date-time-input:invalid {
     opacity: 1;
   }
 }
+
+.confetti-piece {
+  animation: confetti-fall linear infinite;
+}
+
+@keyframes confetti-fall {
+  0% {
+    transform: translateY(-5vh) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(105vh) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+.animate-winner-capsule {
+  animation: winner-capsule-pulse 2s ease-in-out infinite;
+}
+
+@keyframes winner-capsule-pulse {
+  0%, 100% {
+    box-shadow: 0 0 12px rgba(245, 197, 24, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(245, 197, 24, 0.6);
+  }
+}
