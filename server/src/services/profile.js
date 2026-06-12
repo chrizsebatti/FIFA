@@ -4,7 +4,7 @@ import User from '../models/User.js';
 import { computeLeaderboard } from './rankSnapshot.js';
 
 export async function buildProfile(userId) {
-  const user = await User.findById(userId).populate('favoriteTeam', 'name');
+  const user = await User.findById(userId).populate('favoriteTeam', 'name color emoji');
   if (!user) return null;
 
   const leaderboard = await computeLeaderboard();

@@ -81,6 +81,8 @@ router.get('/fans', auth, async (req, res, next) => {
         return {
           _id: team._id,
           name: team.name,
+          emoji: team.emoji || '',
+          color: team.color || '#FF6D00',
           fanCount,
           percentage: assignedFans
             ? Math.round((fanCount / assignedFans) * 100)

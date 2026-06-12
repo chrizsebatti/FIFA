@@ -25,45 +25,53 @@ export default function AdminLogin() {
   };
 
   return (
-    <div className="flex min-h-dvh items-center justify-center bg-fifa-dark px-4">
-      <div className="w-full max-w-sm">
-        <h1 className="mb-6 text-center text-2xl font-bold text-fifa-gold">Admin Login</h1>
-        <form onSubmit={handleSubmit} className="space-y-4 rounded-xl border border-white/10 bg-white/5 p-6">
-          <div>
-            <label className="mb-1 block text-sm text-white/70">Username</label>
-            <input
-              type="text"
-              required
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              className="w-full min-h-[44px] rounded-lg border border-white/10 bg-white/5 px-3 outline-none focus:border-fifa-gold"
-            />
-          </div>
-          <div>
-            <label className="mb-1 block text-sm text-white/70">Password</label>
-            <input
-              type="password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full min-h-[44px] rounded-lg border border-white/10 bg-white/5 px-3 outline-none focus:border-fifa-gold"
-            />
-          </div>
-          {error && <p className="text-sm text-red-400">{error}</p>}
+    <div className="flex min-h-dvh flex-col bg-white">
+      <header className="border-b border-[#FF6D00]/25 bg-gradient-to-b from-[#FF6D00]/15 via-[#FF6D00]/8 to-white px-4 py-3 shadow-sm">
+        <h1 className="text-center text-lg font-bold text-[#FF6D00]">FIFA WC 2026</h1>
+        <p className="text-center text-xs text-gray-600">Admin</p>
+      </header>
+
+      <div className="flex flex-1 items-center justify-center px-4 py-8">
+        <div className="w-full max-w-sm">
+          <h2 className="mb-6 text-center text-xl font-bold text-gray-900">Admin Login</h2>
+          <form onSubmit={handleSubmit} className="space-y-4 rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+            <div>
+              <label className="mb-1 block text-sm text-gray-600">Username</label>
+              <input
+                type="text"
+                required
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                className="w-full min-h-[44px] rounded-lg border border-gray-200 bg-gray-50 px-3 outline-none focus:border-[#FF6D00]"
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-sm text-gray-600">Password</label>
+              <input
+                type="password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full min-h-[44px] rounded-lg border border-gray-200 bg-gray-50 px-3 outline-none focus:border-[#FF6D00]"
+              />
+            </div>
+            {error && <p className="text-sm text-red-400">{error}</p>}
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full min-h-[44px] rounded-lg bg-[#FF6D00] font-semibold text-white disabled:opacity-50"
+            >
+              {loading ? 'Logging in...' : 'Login'}
+            </button>
+          </form>
           <button
-            type="submit"
-            disabled={loading}
-            className="w-full min-h-[44px] rounded-lg bg-fifa-green font-semibold disabled:opacity-50"
+            type="button"
+            onClick={() => navigate('/')}
+            className="mt-4 w-full text-center text-sm text-gray-400 hover:text-[#FF6D00]"
           >
-            {loading ? 'Logging in...' : 'Login'}
+            ← Back to app
           </button>
-        </form>
-        <button
-          onClick={() => navigate('/')}
-          className="mt-4 w-full text-center text-sm text-white/40 hover:text-white/70"
-        >
-          ← Back to app
-        </button>
+        </div>
       </div>
     </div>
   );

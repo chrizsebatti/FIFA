@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 
-const COLORS = ['#f5c518', '#00a651', '#ffffff', '#ff6b6b', '#4ecdc4'];
+const COLORS = ['#FF6D00', '#00a651', '#3b82f6', '#ff6b6b', '#4ecdc4'];
 
 function createPieces(count = 36) {
   return Array.from({ length: count }, (_, i) => ({

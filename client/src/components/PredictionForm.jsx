@@ -34,7 +34,7 @@ export default function PredictionForm({
       )}
 
       <div>
-        <label className="mb-2 block text-sm font-medium text-white/70">
+        <label className="mb-2 block text-sm font-medium text-gray-600">
           Who will win?
         </label>
         <div className="grid grid-cols-3 gap-2">
@@ -53,15 +53,15 @@ export default function PredictionForm({
                 onClick={() => setPredictedWinner(option)}
                 className={`min-h-[56px] rounded-xl border px-2 py-2 text-sm font-medium transition ${
                   selected
-                    ? 'border-fifa-gold bg-fifa-gold/20 text-fifa-gold'
+                    ? 'border-[#FF6D00] bg-[#FF6D00]/15 text-[#FF6D00]'
                     : isFavorite
-                      ? 'border-fifa-gold/40 bg-fifa-gold/5 text-white/90'
-                      : 'border-white/10 bg-white/5 text-white/80'
+                      ? 'border-fifa-green/40 bg-fifa-green/5 text-gray-800'
+                      : 'border-gray-200 bg-gray-50 text-gray-700'
                 } ${locked ? 'opacity-50' : 'active:scale-95'}`}
               >
                 <span className="block">{label}</span>
                 {pct != null && predictionStats.totalPredictions > 0 && (
-                  <span className={`mt-0.5 block text-xs ${isFavorite ? 'text-fifa-gold' : 'text-white/40'}`}>
+                  <span className={`mt-0.5 block text-xs ${isFavorite ? 'text-fifa-green' : 'text-gray-400'}`}>
                     {pct}%{isFavorite ? ' ★' : ''}
                   </span>
                 )}
@@ -72,31 +72,31 @@ export default function PredictionForm({
       </div>
 
       <div>
-        <label className="mb-2 block text-sm font-medium text-white/70">
+        <label className="mb-2 block text-sm font-medium text-gray-600">
           Predicted score
         </label>
         <div className="flex items-center justify-center gap-4">
           <div className="text-center">
-            <p className="mb-1 text-xs text-white/50">{match.teamA}</p>
+            <p className="mb-1 text-xs text-gray-500">{match.teamA}</p>
             <input
               type="number"
               min="0"
               value={scoreA}
               disabled={locked}
               onChange={(e) => setScoreA(e.target.value)}
-              className="w-20 rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-center text-2xl font-bold outline-none focus:border-fifa-gold"
+              className="w-20 rounded-xl border border-gray-200 bg-gray-50 px-3 py-3 text-center text-2xl font-bold outline-none focus:border-fifa-green"
             />
           </div>
-          <span className="text-2xl text-white/30">-</span>
+          <span className="text-2xl text-gray-400">-</span>
           <div className="text-center">
-            <p className="mb-1 text-xs text-white/50">{match.teamB}</p>
+            <p className="mb-1 text-xs text-gray-500">{match.teamB}</p>
             <input
               type="number"
               min="0"
               value={scoreB}
               disabled={locked}
               onChange={(e) => setScoreB(e.target.value)}
-              className="w-20 rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-center text-2xl font-bold outline-none focus:border-fifa-gold"
+              className="w-20 rounded-xl border border-gray-200 bg-gray-50 px-3 py-3 text-center text-2xl font-bold outline-none focus:border-fifa-green"
             />
           </div>
         </div>
@@ -106,7 +106,7 @@ export default function PredictionForm({
         <button
           type="submit"
           disabled={loading || !predictedWinner}
-          className="w-full min-h-[48px] rounded-xl bg-fifa-green font-semibold text-white transition active:scale-[0.98] disabled:opacity-50"
+          className="w-full min-h-[48px] rounded-xl bg-[#FF6D00] font-semibold text-white transition active:scale-[0.98] disabled:opacity-50"
         >
           {loading ? 'Saving...' : 'Save Prediction'}
         </button>

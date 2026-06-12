@@ -9,6 +9,8 @@ import { importPredictions } from '../services/bulkPredictionImport.js';
 import { normalizeImportRows, parseImportPayload } from '../services/bulkImport.js';
 import { getPointsReason, getWinner, scoreMatch } from '../services/scoring.js';
 import { isLocked } from '../services/predictionLock.js';
+import { normalizeTeamColor } from '../utils/teamColor.js';
+import { normalizeTeamEmoji } from '../utils/teamEmoji.js';
 
 const router = Router();
 
@@ -263,11 +265,19 @@ router.get('/teams', adminAuth, async (req, res, next) => {
 
 router.post('/teams', adminAuth, async (req, res, next) => {
   try {
-    const { name } = req.body;
+    const { name, color, emoji } = req.body;
     if (!name?.trim()) {
       return res.status(400).json({ error: 'Team name is required' });
     }
-    const team = await Team.create({ name: name.trim() });
+    const normalizedColor = normalizeTeamColor(color);
+    if (color && normalizedColor === null) {
+      return res.status(400).json({ error: 'Invalid team color. Use hex format like #FF6D00' });
+    }
+    const team = await Team.create({
+      name: name.trim(),
+      color: normalizedColor,
+      emoji: normalizeTeamEmoji(emoji),
+    });
     res.status(201).json({ team });
   } catch (err) {
     if (err.code === 11000) {
@@ -279,13 +289,23 @@ router.post('/teams', adminAuth, async (req, res, next) => {
 
 router.put('/teams/:id', adminAuth, async (req, res, next) => {
   try {
-    const { name, isActive } = req.body;
+    const { name, color, emoji, isActive } = req.body;
     const team = await Team.findById(req.params.id);
     if (!team) {
       return res.status(404).json({ error: 'Team not found' });
     }
     if (name?.trim()) {
       team.name = name.trim();
+    }
+    if (color !== undefined) {
+      const normalizedColor = normalizeTeamColor(color);
+      if (normalizedColor === null) {
+        return res.status(400).json({ error: 'Invalid team color. Use hex format like #FF6D00' });
+      }
+      team.color = normalizedColor;
+    }
+    if (emoji !== undefined) {
+      team.emoji = normalizeTeamEmoji(emoji);
     }
     if (isActive !== undefined) {
       team.isActive = Boolean(isActive);

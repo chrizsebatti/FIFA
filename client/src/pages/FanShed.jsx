@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import api from '../api/client';
 import Layout from '../components/Layout';
 import FanShedChart from '../components/FanShedChart';
+import TeamEmojiBadge from '../components/TeamEmojiBadge';
 
 export default function FanShed() {
   const [data, setData] = useState(null);
@@ -20,7 +21,7 @@ export default function FanShed() {
   if (loading) {
     return (
       <Layout>
-        <p className="text-white/50">Loading...</p>
+        <p className="text-gray-500">Loading...</p>
       </Layout>
     );
   }
@@ -39,15 +40,15 @@ export default function FanShed() {
   return (
     <Layout>
       <h2 className="mb-1 text-xl font-bold">Fan Shed</h2>
-      <p className="mb-4 text-sm text-white/50">
+      <p className="mb-4 text-sm text-gray-500">
         Total fans per team based on Profile favorite picks
       </p>
 
       {!userFavoriteTeamId && (
-        <div className="mb-4 rounded-xl border border-fifa-gold/30 bg-fifa-gold/10 px-4 py-3 text-sm">
-          <p className="text-white/80">
+        <div className="mb-4 rounded-xl border border-fifa-primary/30 bg-fifa-primary/10 px-4 py-3 text-sm">
+          <p className="text-gray-700">
             Set your favorite team on{' '}
-            <Link to="/profile" className="font-semibold text-fifa-gold hover:underline">
+            <Link to="/profile" className="font-semibold text-fifa-primary hover:underline">
               Profile
             </Link>{' '}
             to join the shed
@@ -56,24 +57,31 @@ export default function FanShed() {
       )}
 
       <div className="mb-6 grid grid-cols-3 gap-3">
-        <div className="rounded-xl border border-white/10 bg-white/5 p-3 text-center">
-          <p className="text-xl font-bold text-fifa-gold">{assignedFans}</p>
-          <p className="mt-1 text-xs text-white/50">Fans assigned</p>
+        <div className="rounded-xl border border-gray-200 bg-gray-50 p-3 text-center">
+          <p className="text-xl font-bold text-fifa-primary">{assignedFans}</p>
+          <p className="mt-1 text-xs text-gray-500">Fans assigned</p>
         </div>
-        <div className="rounded-xl border border-white/10 bg-white/5 p-3 text-center">
-          <p className="text-xl font-bold text-fifa-gold">{teams.length}</p>
-          <p className="mt-1 text-xs text-white/50">Teams</p>
+        <div className="rounded-xl border border-gray-200 bg-gray-50 p-3 text-center">
+          <p className="text-xl font-bold text-fifa-primary">{teams.length}</p>
+          <p className="mt-1 text-xs text-gray-500">Teams</p>
         </div>
-        <div className="rounded-xl border border-white/10 bg-white/5 p-3 text-center">
-          <p className="text-xl font-bold text-fifa-gold">{unassignedFans}</p>
-          <p className="mt-1 text-xs text-white/50">No team yet</p>
+        <div className="rounded-xl border border-gray-200 bg-gray-50 p-3 text-center">
+          <p className="text-xl font-bold text-fifa-primary">{unassignedFans}</p>
+          <p className="mt-1 text-xs text-gray-500">No team yet</p>
         </div>
       </div>
 
       {userTeam && (
-        <div className="mb-4 rounded-xl border border-fifa-gold/50 bg-fifa-gold/10 px-4 py-3">
-          <p className="text-xs text-white/50">Your team</p>
-          <p className="font-semibold text-fifa-gold">
+        <div
+          className="mb-4 rounded-xl border px-4 py-3"
+          style={{
+            borderColor: `${userTeam.color}80`,
+            backgroundColor: `${userTeam.color}15`,
+          }}
+        >
+          <p className="text-xs text-gray-500">Your team</p>
+          <p className="flex items-center gap-2 font-semibold" style={{ color: userTeam.color }}>
+            {userTeam.emoji && <span className="text-xl">{userTeam.emoji}</span>}
             {userTeam.name} · {userTeam.fanCount} fan{userTeam.fanCount !== 1 ? 's' : ''} (
             {userTeam.percentage}%)
           </p>
@@ -81,62 +89,74 @@ export default function FanShed() {
       )}
 
       {teams.length === 0 ? (
-        <p className="text-white/50">No teams added yet. Ask an admin to add teams.</p>
+        <p className="text-gray-500">No teams added yet. Ask an admin to add teams.</p>
       ) : (
         <>
-          <section className="mb-6 rounded-xl border border-white/10 bg-white/5 p-4">
-            <h3 className="mb-3 text-sm font-semibold text-white/80">Fan distribution</h3>
+          <section className="mb-6 rounded-xl border border-gray-200 bg-gray-50 p-4">
+            <h3 className="mb-3 text-sm font-semibold text-gray-700">Fan distribution</h3>
             <FanShedChart teams={teams} userFavoriteTeamId={userFavoriteTeamId} />
           </section>
 
           <section>
-            <h3 className="mb-3 text-sm font-semibold text-white/80">Rankings</h3>
+            <h3 className="mb-3 text-sm font-semibold text-gray-700">Rankings</h3>
             {assignedFans === 0 && (
-              <p className="mb-3 text-sm text-white/50">
+              <p className="mb-3 text-sm text-gray-500">
                 No fans assigned yet — be the first to pick a team on Profile
               </p>
             )}
             <div className="space-y-2">
               {teams.map((team, index) => {
                 const isUserTeam = team._id === userFavoriteTeamId;
+                const teamColor = team.color || '#FF6D00';
                 return (
                   <div
                     key={team._id}
                     className={`rounded-xl border px-4 py-3 ${
-                      isUserTeam
-                        ? 'border-fifa-gold/50 bg-fifa-gold/10'
-                        : 'border-white/10 bg-white/5'
+                      isUserTeam ? '' : 'border-gray-200 bg-gray-50'
                     }`}
+                    style={
+                      isUserTeam
+                        ? {
+                            borderColor: `${teamColor}80`,
+                            backgroundColor: `${teamColor}12`,
+                          }
+                        : undefined
+                    }
                   >
                     <div className="flex items-center gap-3">
-                      <span
-                        className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-bold ${
-                          index < 3 ? 'bg-fifa-gold text-black' : 'bg-white/10'
-                        }`}
-                      >
-                        {index + 1}
-                      </span>
+                      <TeamEmojiBadge
+                        emoji={team.emoji}
+                        rank={index + 1}
+                        color={teamColor}
+                      />
                       <div className="min-w-0 flex-1">
-                        <p className="font-medium">
+                        <p className="flex items-center gap-2 font-medium">
+                          <span
+                            className="inline-block h-2.5 w-2.5 shrink-0 rounded-full"
+                            style={{ backgroundColor: teamColor }}
+                          />
                           {team.name}
                           {isUserTeam && (
-                            <span className="ml-2 text-xs text-fifa-gold">(you)</span>
+                            <span className="text-xs" style={{ color: teamColor }}>
+                              (you)
+                            </span>
                           )}
                         </p>
-                        <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-white/10">
+                        <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-gray-100">
                           <div
-                            className={`h-full rounded-full ${
-                              isUserTeam ? 'bg-fifa-gold' : 'bg-fifa-green/70'
-                            }`}
+                            className="h-full rounded-full"
                             style={{
                               width: `${assignedFans ? team.percentage : 0}%`,
+                              backgroundColor: teamColor,
                             }}
                           />
                         </div>
                       </div>
                       <div className="shrink-0 text-right">
-                        <p className="font-bold text-fifa-gold">{team.fanCount}</p>
-                        <p className="text-xs text-white/40">{team.percentage}%</p>
+                        <p className="font-bold" style={{ color: teamColor }}>
+                          {team.fanCount}
+                        </p>
+                        <p className="text-xs text-gray-400">{team.percentage}%</p>
                       </div>
                     </div>
                   </div>
@@ -146,7 +166,7 @@ export default function FanShed() {
           </section>
 
           {totalUsers > 0 && (
-            <p className="mt-4 text-center text-xs text-white/30">
+            <p className="mt-4 text-center text-xs text-gray-400">
               {totalUsers} total user{totalUsers !== 1 ? 's' : ''} in the pool
             </p>
           )}

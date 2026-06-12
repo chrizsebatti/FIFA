@@ -84,7 +84,7 @@ export default function Predict() {
   if (loading) {
     return (
       <Layout>
-        <p className="text-white/50">Loading...</p>
+        <p className="text-gray-500">Loading...</p>
       </Layout>
     );
   }
@@ -106,31 +106,31 @@ export default function Predict() {
     <Layout>
       <button
         onClick={() => navigate(-1)}
-        className="mb-4 text-sm text-white/50 hover:text-white"
+        className="mb-4 text-sm text-gray-500 hover:text-gray-900"
       >
         ← Back
       </button>
 
-      <div className="mb-6 rounded-xl border border-white/10 bg-white/5 p-4 text-center">
+      <div className="mb-6 rounded-xl border border-gray-200 bg-gray-50 p-4 text-center">
         {match.stage && (
-          <p className="mb-1 text-xs font-medium uppercase text-fifa-gold">{match.stage}</p>
+          <p className="mb-1 text-xs font-medium uppercase text-fifa-primary">{match.stage}</p>
         )}
         <div className="flex items-center justify-between gap-4">
           <div className="flex-1">
             <p className="text-lg font-bold">{match.teamA}</p>
             {isFinished && (
-              <p className="text-2xl font-bold text-fifa-gold">{match.scoreA}</p>
+              <p className="text-2xl font-bold text-fifa-primary">{match.scoreA}</p>
             )}
           </div>
-          <span className="text-white/30">vs</span>
+          <span className="text-gray-400">vs</span>
           <div className="flex-1">
             <p className="text-lg font-bold">{match.teamB}</p>
             {isFinished && (
-              <p className="text-2xl font-bold text-fifa-gold">{match.scoreB}</p>
+              <p className="text-2xl font-bold text-fifa-primary">{match.scoreB}</p>
             )}
           </div>
         </div>
-        <p className="mt-2 text-xs text-white/50">{formatDateTime(match.startTime)}</p>
+        <p className="mt-2 text-xs text-gray-500">{formatDateTime(match.startTime)}</p>
         <span className={`mt-2 inline-block rounded-full px-3 py-1 text-xs font-medium ${badge.className}`}>
           {badge.text}
         </span>
@@ -139,12 +139,18 @@ export default function Predict() {
       {isFinished ? (
         <>
           {prediction && (
-            <div className="mb-4 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm">
-              <p className="text-white/50">Your prediction</p>
+            <div className="mb-4 rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm">
+              <p className="text-gray-500">Your prediction</p>
               <p className="font-medium">
                 {prediction.predictedWinner === 'draw' ? 'Draw' : prediction.predictedWinner} (
                 {prediction.scoreA}-{prediction.scoreB})
-                <span className="ml-2 text-fifa-gold">+{prediction.pointsEarned} pts</span>
+                <span
+                  className={`ml-2 font-semibold ${
+                    prediction.pointsEarned > 0 ? 'text-[#008631]' : 'text-gray-400'
+                  }`}
+                >
+                  {prediction.pointsEarned > 0 ? `+${prediction.pointsEarned}` : '0'} pts
+                </span>
               </p>
             </div>
           )}

@@ -30,12 +30,12 @@ export default function Join() {
       <div className="flex min-h-[70dvh] flex-col justify-center">
         <div className="mb-8 text-center">
           <div className="mb-2 text-5xl">⚽</div>
-          <h2 className="text-2xl font-bold text-fifa-gold">FIFA WC 2026</h2>
-          <p className="mt-2 text-white/60">Predict winners & scores to earn points</p>
+          <h2 className="text-2xl font-bold text-fifa-primary">FIFA WC 2026</h2>
+          <p className="mt-2 text-gray-500">Predict winners & scores to earn points</p>
         </div>
 
-        <div className="mb-6 rounded-xl bg-white/5 p-4 text-sm text-white/70">
-          <p className="font-medium text-fifa-gold">Scoring</p>
+        <div className="mb-6 rounded-xl bg-gray-50 p-4 text-sm text-gray-600">
+          <p className="font-medium text-fifa-primary">Scoring</p>
           <ul className="mt-2 space-y-1">
             <li>✓ Correct winner → 50 points</li>
             <li>✓ Correct winner + exact score → 100 points</li>
@@ -44,33 +44,33 @@ export default function Join() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="mb-1 block text-sm text-white/70">Phone Number</label>
+            <label className="mb-1 block text-sm text-gray-600">Phone Number</label>
             <input
               type="tel"
               required
               value={phoneNumber}
               onChange={(e) => setPhoneNumber(e.target.value)}
               placeholder="+1 234 567 8900"
-              className="w-full min-h-[48px] rounded-xl border border-white/10 bg-white/5 px-4 outline-none focus:border-fifa-gold"
+              className="w-full min-h-[48px] rounded-xl border border-gray-200 bg-gray-50 px-4 outline-none focus:border-fifa-primary"
             />
           </div>
           <div>
-            <label className="mb-1 block text-sm text-white/70">
-              Display Name <span className="text-white/40">(optional)</span>
+            <label className="mb-1 block text-sm text-gray-600">
+              Display Name <span className="text-gray-400">(optional)</span>
             </label>
             <input
               type="text"
               value={displayName}
               onChange={(e) => setDisplayName(e.target.value)}
               placeholder="Your nickname"
-              className="w-full min-h-[48px] rounded-xl border border-white/10 bg-white/5 px-4 outline-none focus:border-fifa-gold"
+              className="w-full min-h-[48px] rounded-xl border border-gray-200 bg-gray-50 px-4 outline-none focus:border-fifa-primary"
             />
           </div>
           {error && <p className="text-sm text-red-400">{error}</p>}
           <button
             type="submit"
             disabled={loading}
-            className="w-full min-h-[48px] rounded-xl bg-fifa-green font-semibold transition active:scale-[0.98] disabled:opacity-50"
+            className="w-full min-h-[48px] rounded-xl bg-fifa-green font-semibold text-white transition active:scale-[0.98] disabled:opacity-50"
           >
             {loading ? 'Joining...' : 'Join & Start Predicting'}
           </button>

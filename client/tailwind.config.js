@@ -6,8 +6,11 @@ export default {
       colors: {
         fifa: {
           green: '#00a651',
-          dark: '#1a1a2e',
-          gold: '#f5c518',
+          dark: '#ffffff',
+          gold: '#FF6D00',
+          goldLight: '#FF8A33',
+          yellow: '#FF6D00',
+          primary: '#FF6D00',
         },
       },
     },

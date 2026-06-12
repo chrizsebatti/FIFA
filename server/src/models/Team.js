@@ -12,6 +12,16 @@ const teamSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    color: {
+      type: String,
+      default: '#FF6D00',
+      trim: true,
+    },
+    emoji: {
+      type: String,
+      default: '',
+      trim: true,
+    },
   },
   { timestamps: true }
 );

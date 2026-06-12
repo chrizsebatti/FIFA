@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 body {
-  @apply bg-fifa-dark text-white antialiased;
+  @apply bg-white text-gray-900 antialiased;
   min-height: 100dvh;
 }
 
@@ -15,22 +15,22 @@ input[type='date'].date-time-input,
 input[type='time'].date-time-input {
   display: block;
   box-sizing: border-box;
-  color: #fff;
-  -webkit-text-fill-color: #fff;
-  color-scheme: dark;
+  color: #111827;
+  -webkit-text-fill-color: #111827;
+  color-scheme: light;
 }
 
 input[type='date'].date-time-input::-webkit-date-and-time-value,
 input[type='time'].date-time-input::-webkit-date-and-time-value {
   min-width: 0;
   text-align: left;
-  color: #fff;
+  color: #111827;
 }
 
 input[type='date'].date-time-input:invalid,
 input[type='time'].date-time-input:invalid {
-  color: rgba(255, 255, 255, 0.4);
-  -webkit-text-fill-color: rgba(255, 255, 255, 0.4);
+  color: #9ca3af;
+  -webkit-text-fill-color: #9ca3af;
 }
 
 .loader-glow {
@@ -118,9 +118,9 @@ input[type='time'].date-time-input:invalid {
 
 @keyframes winner-capsule-pulse {
   0%, 100% {
-    box-shadow: 0 0 12px rgba(245, 197, 24, 0.3);
+    box-shadow: 0 0 12px rgba(255, 109, 0, 0.35);
   }
   50% {
-    box-shadow: 0 0 20px rgba(245, 197, 24, 0.6);
+    box-shadow: 0 0 20px rgba(255, 109, 0, 0.55);
   }
 }

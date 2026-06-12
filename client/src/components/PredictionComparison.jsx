@@ -13,12 +13,12 @@ function MatchStatCard({ stat }) {
   const userAgreePct = userPickEntry?.percentage ?? 0;
 
   return (
-    <div className="rounded-xl border border-white/10 bg-white/5 p-4">
+    <div className="rounded-xl border border-gray-200 bg-gray-50 p-4">
       <div className="mb-3">
         <p className="font-medium">
           {match.teamA} vs {match.teamB}
         </p>
-        <p className="text-xs text-white/40">
+        <p className="text-xs text-gray-400">
           {match.stage ? `${match.stage} · ` : ''}
           {formatDateTime(match.startTime)}
           {totalPredictions > 0 && ` · ${totalPredictions} predictions`}
@@ -26,7 +26,7 @@ function MatchStatCard({ stat }) {
       </div>
 
       {totalPredictions === 0 ? (
-        <p className="text-sm text-white/50">No predictions yet for this match</p>
+        <p className="text-sm text-gray-500">No predictions yet for this match</p>
       ) : (
         <div className="space-y-2">
           {distribution.map((item) => {
@@ -34,18 +34,18 @@ function MatchStatCard({ stat }) {
             return (
               <div key={item.pick}>
                 <div className="mb-1 flex items-center justify-between text-xs">
-                  <span className={isUserPick ? 'font-semibold text-fifa-gold' : 'text-white/70'}>
+                  <span className={isUserPick ? 'font-semibold text-fifa-primary' : 'text-gray-600'}>
                     {pickLabel(item.pick)}
                     {isUserPick && ' (you)'}
                   </span>
-                  <span className="text-white/50">
+                  <span className="text-gray-500">
                     {item.percentage}% ({item.count})
                   </span>
                 </div>
-                <div className="h-2 overflow-hidden rounded-full bg-white/10">
+                <div className="h-2 overflow-hidden rounded-full bg-gray-100">
                   <div
                     className={`h-full rounded-full transition-all ${
-                      isUserPick ? 'bg-fifa-gold' : 'bg-fifa-green/70'
+                      isUserPick ? 'bg-fifa-primary' : 'bg-fifa-green/70'
                     }`}
                     style={{ width: `${item.percentage}%` }}
                   />
@@ -57,12 +57,12 @@ function MatchStatCard({ stat }) {
       )}
 
       {userPick ? (
-        <p className="mt-3 text-xs text-white/60">
-          You picked <span className="text-fifa-gold">{pickLabel(userPick.predictedWinner)}</span>
+        <p className="mt-3 text-xs text-gray-500">
+          You picked <span className="text-fifa-primary">{pickLabel(userPick.predictedWinner)}</span>
           {' '}({userPick.scoreA}-{userPick.scoreB}) — {userAgreePct}% of users agreed
         </p>
       ) : (
-        <p className="mt-3 text-xs text-white/40">You have not predicted this match</p>
+        <p className="mt-3 text-xs text-gray-400">You have not predicted this match</p>
       )}
     </div>
   );
@@ -75,7 +75,7 @@ export default function PredictionComparison({ stats }) {
   const matchesWithoutPredictions = stats?.filter((s) => s.totalPredictions === 0) || [];
 
   if (!stats?.length) {
-    return <p className="text-sm text-white/50">No match data available</p>;
+    return <p className="text-sm text-gray-500">No match data available</p>;
   }
 
   const toggle = (id) => {
@@ -93,7 +93,7 @@ export default function PredictionComparison({ stats }) {
           <button
             type="button"
             onClick={() => toggle('upcoming')}
-            className="flex w-full items-center justify-between rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white/60"
+            className="flex w-full items-center justify-between rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-500"
           >
             <span>{matchesWithoutPredictions.length} matches with no predictions yet</span>
             <span>{expanded.upcoming ? '▲' : '▼'}</span>

@@ -30,7 +30,7 @@ router.post('/join', async (req, res, next) => {
       expiresIn: '7d',
     });
 
-    const populated = await User.findById(user._id).populate('favoriteTeam', 'name');
+    const populated = await User.findById(user._id).populate('favoriteTeam', 'name color emoji');
     res.json({ token, user: populated });
   } catch (err) {
     next(err);
@@ -62,7 +62,7 @@ router.patch('/me', auth, attachUser, async (req, res, next) => {
     }
 
     await req.user.save();
-    const user = await User.findById(req.user._id).populate('favoriteTeam', 'name');
+    const user = await User.findById(req.user._id).populate('favoriteTeam', 'name color emoji');
     res.json({ user });
   } catch (err) {
     next(err);

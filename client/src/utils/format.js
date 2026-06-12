@@ -41,17 +41,23 @@ export function getMatchStatus(match) {
   return 'open';
 }
 
+export function getMatchTab(match) {
+  if (match.status === 'finished') return 'finished';
+  if (new Date() >= new Date(match.startTime)) return 'in_progress';
+  return 'upcoming';
+}
+
 export function statusLabel(status) {
   switch (status) {
     case 'open':
-      return { text: 'Open', className: 'bg-green-600' };
+      return { text: 'Open', className: 'bg-blue-600 text-white' };
     case 'soon':
-      return { text: 'Starting Soon', className: 'bg-amber-500 text-black' };
+      return { text: 'Starting Soon', className: 'bg-blue-500 text-white' };
     case 'started':
-      return { text: 'Game Started', className: 'bg-red-600' };
+      return { text: 'Game Started', className: 'bg-green-600 text-white' };
     case 'finished':
-      return { text: 'Finished', className: 'bg-gray-600' };
+      return { text: 'Finished', className: 'bg-red-600 text-white' };
     default:
-      return { text: 'Unknown', className: 'bg-gray-600' };
+      return { text: 'Unknown', className: 'bg-gray-500 text-white' };
   }
 }

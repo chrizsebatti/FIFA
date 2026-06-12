@@ -1,31 +1,45 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { NavIcon } from './NavIcons';
+
+const navItems = [
+  { to: '/matches', label: 'Matches', icon: 'matches' },
+  { to: '/leaderboard', label: 'Board', icon: 'board' },
+  { to: '/my-predictions', label: 'My Picks', icon: 'picks' },
+  { to: '/fan-shed', label: 'Fans', icon: 'fans' },
+  { to: '/profile', label: 'Profile', icon: 'profile' },
+];
 
 export default function Layout({ children, showNav = true }) {
   const location = useLocation();
   const { user } = useAuth();
 
-  const navItems = [
-    { to: '/matches', label: 'Matches', icon: '⚽' },
-    { to: '/leaderboard', label: 'Board', icon: '🏆' },
-    { to: '/my-predictions', label: 'Picks', icon: '📋' },
-    { to: '/fan-shed', label: 'Fans', icon: '📣' },
-    { to: '/profile', label: 'Profile', icon: '👤' },
-  ];
-
   return (
     <div className="flex min-h-dvh flex-col">
-      <header className="sticky top-0 z-10 border-b border-white/10 bg-fifa-dark/95 px-4 py-3 backdrop-blur">
+      <header className="sticky top-0 z-10 border-b border-[#FF6D00]/25 bg-gradient-to-b from-[#FF6D00]/15 via-[#FF6D00]/8 to-white px-4 py-3 shadow-sm backdrop-blur">
         <div className="mx-auto flex max-w-lg items-center justify-between">
           <div>
-            <h1 className="text-lg font-bold text-fifa-gold">FIFA WC 2026</h1>
+            <h1 className="text-lg font-bold text-[#FF6D00]">FIFA WC 2026</h1>
             {user && (
-              <Link to="/profile" className="text-xs text-white/60 hover:text-fifa-gold">
-                {user.displayName || user.phoneNumber} · {user.totalPoints} pts
+              <Link
+                to="/profile"
+                className="text-xs text-gray-600 hover:text-[#FF6D00]"
+              >
+                {user.displayName || user.phoneNumber} ·{' '}
+                <span
+                  className={`font-semibold ${
+                    user.totalPoints === 0 ? 'text-red-600' : 'text-[#008631]'
+                  }`}
+                >
+                  {user.totalPoints} pts
+                </span>
               </Link>
             )}
           </div>
-          <Link to="/admin" className="text-xs text-white/40 hover:text-white/70">
+          <Link
+            to="/admin"
+            className="rounded-full border border-[#FF6D00] bg-white/80 px-3 py-1 text-xs font-medium text-[#FF6D00] shadow-sm transition hover:bg-[#FF6D00]/5"
+          >
             Admin
           </Link>
         </div>
@@ -34,20 +48,32 @@ export default function Layout({ children, showNav = true }) {
       <main className="mx-auto w-full max-w-lg flex-1 px-4 py-4 pb-24">{children}</main>
 
       {showNav && user && (
-        <nav className="fixed bottom-0 left-0 right-0 border-t border-white/10 bg-fifa-dark/95 backdrop-blur">
-          <div className="mx-auto flex max-w-lg">
+        <nav className="fixed bottom-0 left-0 right-0 z-10 border-t border-gray-200 bg-white/95 pb-[env(safe-area-inset-bottom)] shadow-[0_-4px_20px_rgba(0,0,0,0.06)] backdrop-blur-md">
+          <div className="mx-auto flex max-w-lg items-stretch px-1">
             {navItems.map((item) => {
               const active = location.pathname.startsWith(item.to);
               return (
                 <Link
                   key={item.to}
                   to={item.to}
-                  className={`flex flex-1 flex-col items-center gap-0.5 py-3 text-xs transition ${
-                    active ? 'text-fifa-gold' : 'text-white/50'
+                  className={`flex min-w-0 flex-1 flex-col items-center gap-1 py-2.5 transition-colors ${
+                    active ? 'text-[#FF6D00]' : 'text-gray-400 hover:text-gray-600'
                   }`}
                 >
-                  <span className="text-lg">{item.icon}</span>
-                  {item.label}
+                  <span
+                    className={`flex h-9 w-14 items-center justify-center rounded-2xl transition-colors ${
+                      active ? 'bg-[#FF6D00]/12' : ''
+                    }`}
+                  >
+                    <NavIcon name={item.icon} className="h-6 w-6" />
+                  </span>
+                  <span
+                    className={`truncate text-[10px] leading-none ${
+                      active ? 'font-semibold' : 'font-medium'
+                    }`}
+                  >
+                    {item.label}
+                  </span>
                 </Link>
               );
             })}

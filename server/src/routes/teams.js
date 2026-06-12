@@ -6,7 +6,7 @@ const router = Router();
 
 router.get('/', auth, async (req, res, next) => {
   try {
-    const teams = await Team.find({ isActive: true }).sort({ name: 1 }).select('name');
+    const teams = await Team.find({ isActive: true }).sort({ name: 1 }).select('name color emoji');
     res.json({ teams });
   } catch (err) {
     next(err);

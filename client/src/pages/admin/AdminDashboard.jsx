@@ -14,8 +14,12 @@ export default function AdminDashboard() {
   const [statistics, setStatistics] = useState([]);
   const [teams, setTeams] = useState([]);
   const [teamName, setTeamName] = useState('');
+  const [teamColor, setTeamColor] = useState('#FF6D00');
+  const [teamEmoji, setTeamEmoji] = useState('');
   const [editingTeamId, setEditingTeamId] = useState(null);
   const [editTeamName, setEditTeamName] = useState('');
+  const [editTeamColor, setEditTeamColor] = useState('#FF6D00');
+  const [editTeamEmoji, setEditTeamEmoji] = useState('');
   const [expandedUser, setExpandedUser] = useState(null);
   const [form, setForm] = useState({ teamA: '', teamB: '', startTime: '', stage: '' });
   const [resultForm, setResultForm] = useState({});
@@ -208,8 +212,14 @@ Germany,France,2026-06-20T18:00:00.000Z,Group B,,`;
     setError('');
     setLoading(true);
     try {
-      await api.post('/admin/teams', { name: teamName.trim() });
+      await api.post('/admin/teams', {
+        name: teamName.trim(),
+        color: teamColor,
+        emoji: teamEmoji.trim(),
+      });
       setTeamName('');
+      setTeamColor('#FF6D00');
+      setTeamEmoji('');
       await loadData();
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to create team');
@@ -222,9 +232,15 @@ Germany,France,2026-06-20T18:00:00.000Z,Group B,,`;
     if (!editTeamName.trim()) return;
     setLoading(true);
     try {
-      await api.put(`/admin/teams/${teamId}`, { name: editTeamName.trim() });
+      await api.put(`/admin/teams/${teamId}`, {
+        name: editTeamName.trim(),
+        color: editTeamColor,
+        emoji: editTeamEmoji.trim(),
+      });
       setEditingTeamId(null);
       setEditTeamName('');
+      setEditTeamColor('#FF6D00');
+      setEditTeamEmoji('');
       await loadData();
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to update team');
@@ -267,11 +283,18 @@ Germany,France,2026-06-20T18:00:00.000Z,Group B,,`;
   };
 
   return (
-    <div className="min-h-dvh bg-fifa-dark">
-      <header className="sticky top-0 z-10 border-b border-white/10 bg-fifa-dark px-4 py-3">
+    <div className="min-h-dvh bg-white">
+      <header className="sticky top-0 z-10 border-b border-[#FF6D00]/25 bg-gradient-to-b from-[#FF6D00]/15 via-[#FF6D00]/8 to-white px-4 py-3 shadow-sm backdrop-blur">
         <div className="mx-auto flex max-w-2xl items-center justify-between">
-          <h1 className="text-lg font-bold text-fifa-gold">Admin Dashboard</h1>
-          <button onClick={logout} className="text-sm text-white/50 hover:text-white">
+          <div>
+            <h1 className="text-lg font-bold text-[#FF6D00]">Admin Dashboard</h1>
+            <p className="text-xs text-gray-600">FIFA WC 2026</p>
+          </div>
+          <button
+            type="button"
+            onClick={logout}
+            className="rounded-full bg-white/60 px-2.5 py-1 text-xs text-gray-600 shadow-sm hover:bg-white hover:text-[#FF6D00]"
+          >
             Logout
           </button>
         </div>
@@ -279,9 +302,12 @@ Germany,France,2026-06-20T18:00:00.000Z,Group B,,`;
           {TABS.map((t) => (
             <button
               key={t}
+              type="button"
               onClick={() => setTab(t)}
-              className={`flex-1 rounded-lg py-2 text-sm capitalize ${
-                tab === t ? 'bg-fifa-gold text-black font-semibold' : 'bg-white/5 text-white/60'
+              className={`flex-1 rounded-lg py-2 text-sm capitalize transition-colors ${
+                tab === t
+                  ? 'bg-[#FF6D00] font-semibold text-white'
+                  : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
               }`}
             >
               {t}
@@ -295,7 +321,7 @@ Germany,France,2026-06-20T18:00:00.000Z,Group B,,`;
 
         {tab === 'matches' && (
           <div className="space-y-6">
-            <form onSubmit={createMatch} className="min-w-0 space-y-3 rounded-xl border border-white/10 bg-white/5 p-4">
+            <form onSubmit={createMatch} className="min-w-0 space-y-3 rounded-xl border border-gray-200 bg-gray-50 p-4">
               <h2 className="font-semibold">Add Match</h2>
               <div className="grid grid-cols-2 gap-2">
                 {activeTeams.length > 0 ? (
@@ -304,7 +330,7 @@ Germany,France,2026-06-20T18:00:00.000Z,Group B,,`;
                       required
                       value={form.teamA}
                       onChange={(e) => setForm({ ...form, teamA: e.target.value })}
-                      className="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm outline-none"
+                      className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm outline-none"
                     >
                       <option value="">Team A</option>
                       {activeTeams.map((t) => (
@@ -317,7 +343,7 @@ Germany,France,2026-06-20T18:00:00.000Z,Group B,,`;
                       required
                       value={form.teamB}
                       onChange={(e) => setForm({ ...form, teamB: e.target.value })}
-                      className="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm outline-none"
+                      className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm outline-none"
                     >
                       <option value="">Team B</option>
                       {activeTeams.map((t) => (
@@ -334,14 +360,14 @@ Germany,France,2026-06-20T18:00:00.000Z,Group B,,`;
                       required
                       value={form.teamA}
                       onChange={(e) => setForm({ ...form, teamA: e.target.value })}
-                      className="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm outline-none"
+                      className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm outline-none"
                     />
                     <input
                       placeholder="Team B"
                       required
                       value={form.teamB}
                       onChange={(e) => setForm({ ...form, teamB: e.target.value })}
-                      className="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm outline-none"
+                      className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm outline-none"
                     />
                   </>
                 )}
@@ -351,40 +377,40 @@ Germany,France,2026-06-20T18:00:00.000Z,Group B,,`;
                 value={form.startTime}
                 onChange={(startTime) => setForm({ ...form, startTime })}
               />
-              <p className="text-xs text-white/40">Date & time in your local timezone</p>
+              <p className="text-xs text-gray-400">Date & time in your local timezone</p>
               <input
                 placeholder="Stage (e.g. Group A)"
                 value={form.stage}
                 onChange={(e) => setForm({ ...form, stage: e.target.value })}
-                className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm outline-none"
+                className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm outline-none"
               />
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full rounded-lg bg-fifa-green py-2 text-sm font-semibold disabled:opacity-50"
+                className="w-full rounded-lg border border-[#FF6D00] bg-white py-2 text-sm font-semibold text-[#FF6D00] transition hover:bg-[#FF6D00]/5 disabled:opacity-50"
               >
                 Add Match
               </button>
             </form>
 
-            <div className="rounded-xl border border-white/10 bg-white/5 p-4">
+            <div className="rounded-xl border border-gray-200 bg-gray-50 p-4">
               <button
                 type="button"
                 onClick={() => setShowImport(!showImport)}
                 className="flex w-full items-center justify-between text-left"
               >
                 <h2 className="font-semibold">Bulk Import (CSV / JSON)</h2>
-                <span className="text-sm text-white/40">{showImport ? '▲' : '▼'}</span>
+                <span className="text-sm text-gray-400">{showImport ? '▲' : '▼'}</span>
               </button>
 
               {showImport && (
                 <div className="mt-4 space-y-3">
-                  <p className="text-xs text-white/50">
+                  <p className="text-xs text-gray-500">
                     Import many matches at once. For past matches, include scoreA and scoreB —
                     they will be marked finished automatically.
                   </p>
-                  <div className="rounded-lg bg-black/20 p-3 text-xs text-white/60">
-                    <p className="font-medium text-white/80">Required columns/fields:</p>
+                  <div className="rounded-lg bg-gray-100 p-3 text-xs text-gray-500">
+                    <p className="font-medium text-gray-700">Required columns/fields:</p>
                     <p className="mt-1">teamA, teamB, startTime (ISO UTC e.g. 2026-06-15T11:30:00.000Z)</p>
                     <p className="mt-1">Optional: stage, scoreA, scoreB (both scores = past match)</p>
                   </div>
@@ -392,22 +418,22 @@ Germany,France,2026-06-20T18:00:00.000Z,Group B,,`;
                     <button
                       type="button"
                       onClick={() => downloadSample(SAMPLE_CSV, 'matches-sample.csv')}
-                      className="rounded-lg border border-white/10 px-3 py-1.5 text-xs text-fifa-gold"
+                      className="rounded-lg border border-gray-200 px-3 py-1.5 text-xs text-fifa-primary"
                     >
                       Download CSV sample
                     </button>
                     <button
                       type="button"
                       onClick={() => downloadSample(SAMPLE_JSON, 'matches-sample.json')}
-                      className="rounded-lg border border-white/10 px-3 py-1.5 text-xs text-fifa-gold"
+                      className="rounded-lg border border-gray-200 px-3 py-1.5 text-xs text-fifa-primary"
                     >
                       Download JSON sample
                     </button>
                   </div>
-                  <label className="flex cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed border-white/20 bg-white/5 px-4 py-6 transition hover:border-fifa-gold/50">
+                  <label className="flex cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed border-gray-300 bg-gray-50 px-4 py-6 transition hover:border-fifa-primary/50">
                     <span className="text-2xl">📁</span>
                     <span className="mt-2 text-sm font-medium">Choose CSV or JSON file</span>
-                    <span className="mt-1 text-xs text-white/40">.csv or .json</span>
+                    <span className="mt-1 text-xs text-gray-400">.csv or .json</span>
                     <input
                       type="file"
                       accept=".csv,.json,application/json,text/csv"
@@ -432,24 +458,24 @@ Germany,France,2026-06-20T18:00:00.000Z,Group B,,`;
 
             <div className="space-y-3">
               {matches.map((match) => (
-                <div key={match._id} className="rounded-xl border border-white/10 bg-white/5 p-4">
+                <div key={match._id} className="rounded-xl border border-gray-200 bg-gray-50 p-4">
                   {editingId === match._id ? (
                     <div className="space-y-3">
-                      <h3 className="text-sm font-semibold text-fifa-gold">Edit Match</h3>
+                      <h3 className="text-sm font-semibold text-fifa-primary">Edit Match</h3>
                       <div className="grid grid-cols-2 gap-2">
                         <input
                           placeholder="Team A"
                           required
                           value={editForm.teamA}
                           onChange={(e) => setEditForm({ ...editForm, teamA: e.target.value })}
-                          className="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm outline-none"
+                          className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm outline-none"
                         />
                         <input
                           placeholder="Team B"
                           required
                           value={editForm.teamB}
                           onChange={(e) => setEditForm({ ...editForm, teamB: e.target.value })}
-                          className="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm outline-none"
+                          className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm outline-none"
                         />
                       </div>
                       <DateTimeInput
@@ -461,7 +487,7 @@ Germany,France,2026-06-20T18:00:00.000Z,Group B,,`;
                         placeholder="Stage (e.g. Group A)"
                         value={editForm.stage}
                         onChange={(e) => setEditForm({ ...editForm, stage: e.target.value })}
-                        className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm outline-none"
+                        className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm outline-none"
                       />
                       <div className="flex gap-2">
                         <button
@@ -475,7 +501,7 @@ Germany,France,2026-06-20T18:00:00.000Z,Group B,,`;
                         <button
                           type="button"
                           onClick={cancelEdit}
-                          className="flex-1 rounded-lg border border-white/10 py-2 text-sm text-white/70"
+                          className="flex-1 rounded-lg border border-gray-200 py-2 text-sm text-gray-600"
                         >
                           Cancel
                         </button>
@@ -485,12 +511,12 @@ Germany,France,2026-06-20T18:00:00.000Z,Group B,,`;
                     <>
                       <div className="flex items-start justify-between">
                         <div>
-                          <p className="text-xs text-fifa-gold">{match.stage || 'Match'}</p>
+                          <p className="text-xs text-fifa-primary">{match.stage || 'Match'}</p>
                           <p className="font-semibold">
                             {match.teamA} vs {match.teamB}
                           </p>
-                          <p className="text-xs text-white/50">{formatDateTime(match.startTime)}</p>
-                          <p className="mt-1 break-all text-[10px] text-white/30">
+                          <p className="text-xs text-gray-500">{formatDateTime(match.startTime)}</p>
+                          <p className="mt-1 break-all text-[10px] text-gray-400">
                             ID: {match._id}
                           </p>
                           {match.status === 'finished' && (
@@ -503,7 +529,7 @@ Germany,France,2026-06-20T18:00:00.000Z,Group B,,`;
                           {match.status !== 'finished' && (
                             <button
                               onClick={() => startEdit(match)}
-                              className="text-xs text-fifa-gold"
+                              className="text-xs text-fifa-primary"
                             >
                               Edit
                             </button>
@@ -529,7 +555,7 @@ Germany,France,2026-06-20T18:00:00.000Z,Group B,,`;
                                 [match._id]: { ...prev[match._id], scoreA: e.target.value },
                               }))
                             }
-                            className="w-16 rounded border border-white/10 bg-white/5 px-2 py-1 text-sm"
+                            className="w-16 rounded border border-gray-200 bg-gray-50 px-2 py-1 text-sm"
                           />
                           <span>-</span>
                           <input
@@ -543,11 +569,11 @@ Germany,France,2026-06-20T18:00:00.000Z,Group B,,`;
                                 [match._id]: { ...prev[match._id], scoreB: e.target.value },
                               }))
                             }
-                            className="w-16 rounded border border-white/10 bg-white/5 px-2 py-1 text-sm"
+                            className="w-16 rounded border border-gray-200 bg-gray-50 px-2 py-1 text-sm"
                           />
                           <button
                             onClick={() => enterResult(match._id)}
-                            className="rounded bg-fifa-gold px-3 py-1 text-xs font-semibold text-black"
+                            className="rounded bg-fifa-primary px-3 py-1 text-xs font-semibold text-white"
                           >
                             Save Result
                           </button>
@@ -563,15 +589,35 @@ Germany,France,2026-06-20T18:00:00.000Z,Group B,,`;
 
         {tab === 'teams' && (
           <div className="space-y-6">
-            <form onSubmit={createTeam} className="space-y-3 rounded-xl border border-white/10 bg-white/5 p-4">
+            <form onSubmit={createTeam} className="space-y-3 rounded-xl border border-gray-200 bg-gray-50 p-4">
               <h2 className="font-semibold">Add Team</h2>
               <input
                 placeholder="Team name (e.g. Brazil)"
                 required
                 value={teamName}
                 onChange={(e) => setTeamName(e.target.value)}
-                className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm outline-none"
+                className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm outline-none"
               />
+              <div className="flex items-center gap-3">
+                <label className="text-sm text-gray-600">Flag / emoji</label>
+                <input
+                  placeholder="🇧🇷"
+                  value={teamEmoji}
+                  onChange={(e) => setTeamEmoji(e.target.value)}
+                  className="w-20 rounded-lg border border-gray-200 bg-white px-3 py-2 text-center text-xl outline-none"
+                  maxLength={8}
+                />
+              </div>
+              <div className="flex items-center gap-3">
+                <label className="text-sm text-gray-600">Team color</label>
+                <input
+                  type="color"
+                  value={teamColor}
+                  onChange={(e) => setTeamColor(e.target.value)}
+                  className="h-10 w-14 cursor-pointer rounded border border-gray-200 bg-white"
+                />
+                <span className="text-xs text-gray-400">{teamColor}</span>
+              </div>
               <button
                 type="submit"
                 disabled={loading}
@@ -582,25 +628,38 @@ Germany,France,2026-06-20T18:00:00.000Z,Group B,,`;
             </form>
 
             <div className="space-y-2">
-              {teams.length === 0 && <p className="text-white/50">No teams yet</p>}
+              {teams.length === 0 && <p className="text-gray-500">No teams yet</p>}
               {teams.map((team) => (
                 <div
                   key={team._id}
                   className={`flex items-center justify-between rounded-xl border px-4 py-3 ${
-                    team.isActive ? 'border-white/10 bg-white/5' : 'border-white/5 bg-white/[0.02] opacity-60'
+                    team.isActive ? 'border-gray-200 bg-gray-50' : 'border-gray-100 bg-gray-50 opacity-60'
                   }`}
                 >
                   {editingTeamId === team._id ? (
-                    <div className="flex flex-1 gap-2">
+                    <div className="flex flex-1 flex-col gap-2 sm:flex-row sm:items-center">
                       <input
                         value={editTeamName}
                         onChange={(e) => setEditTeamName(e.target.value)}
-                        className="flex-1 rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-sm outline-none"
+                        className="flex-1 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-sm outline-none"
+                      />
+                      <input
+                        value={editTeamEmoji}
+                        onChange={(e) => setEditTeamEmoji(e.target.value)}
+                        placeholder="🇧🇷"
+                        className="w-16 rounded-lg border border-gray-200 bg-white px-2 py-1.5 text-center text-lg outline-none"
+                        maxLength={8}
+                      />
+                      <input
+                        type="color"
+                        value={editTeamColor}
+                        onChange={(e) => setEditTeamColor(e.target.value)}
+                        className="h-9 w-12 cursor-pointer rounded border border-gray-200 bg-white"
                       />
                       <button
                         type="button"
                         onClick={() => saveTeamEdit(team._id)}
-                        className="rounded-lg bg-fifa-green px-3 py-1.5 text-xs font-semibold"
+                        className="rounded-lg bg-fifa-green px-3 py-1.5 text-xs font-semibold text-white"
                       >
                         Save
                       </button>
@@ -609,19 +668,33 @@ Germany,France,2026-06-20T18:00:00.000Z,Group B,,`;
                         onClick={() => {
                           setEditingTeamId(null);
                           setEditTeamName('');
+                          setEditTeamColor('#FF6D00');
+                          setEditTeamEmoji('');
                         }}
-                        className="rounded-lg bg-white/10 px-3 py-1.5 text-xs"
+                        className="rounded-lg bg-gray-100 px-3 py-1.5 text-xs"
                       >
                         Cancel
                       </button>
                     </div>
                   ) : (
                     <>
-                      <div>
-                        <p className="font-medium">{team.name}</p>
-                        <p className="text-xs text-white/40">
-                          {team.isActive ? 'Active' : 'Inactive'}
-                        </p>
+                      <div className="flex items-center gap-3">
+                        <span
+                          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border text-lg"
+                          style={{
+                            borderColor: `${team.color || '#FF6D00'}60`,
+                            backgroundColor: `${team.color || '#FF6D00'}12`,
+                          }}
+                        >
+                          {team.emoji || team.name.charAt(0).toUpperCase()}
+                        </span>
+                        <div>
+                          <p className="font-medium">{team.name}</p>
+                          <p className="text-xs text-gray-400">
+                            {team.isActive ? 'Active' : 'Inactive'} · {team.color || '#FF6D00'}
+                            {team.emoji ? ` · ${team.emoji}` : ''}
+                          </p>
+                        </div>
                       </div>
                       <div className="flex gap-2">
                         <button
@@ -629,15 +702,17 @@ Germany,France,2026-06-20T18:00:00.000Z,Group B,,`;
                           onClick={() => {
                             setEditingTeamId(team._id);
                             setEditTeamName(team.name);
+                            setEditTeamColor(team.color || '#FF6D00');
+                            setEditTeamEmoji(team.emoji || '');
                           }}
-                          className="rounded-lg bg-white/10 px-3 py-1.5 text-xs"
+                          className="rounded-lg bg-gray-100 px-3 py-1.5 text-xs"
                         >
                           Edit
                         </button>
                         <button
                           type="button"
                           onClick={() => toggleTeamActive(team)}
-                          className="rounded-lg bg-white/10 px-3 py-1.5 text-xs"
+                          className="rounded-lg bg-gray-100 px-3 py-1.5 text-xs"
                         >
                           {team.isActive ? 'Deactivate' : 'Activate'}
                         </button>
@@ -652,27 +727,27 @@ Germany,France,2026-06-20T18:00:00.000Z,Group B,,`;
 
         {tab === 'predictions' && (
           <div className="space-y-4">
-            <div className="rounded-xl border border-white/10 bg-white/5 p-4">
+            <div className="rounded-xl border border-gray-200 bg-gray-50 p-4">
               <button
                 type="button"
                 onClick={() => setShowPredictionImport(!showPredictionImport)}
                 className="flex w-full items-center justify-between text-left"
               >
                 <h2 className="font-semibold">Bulk Import Predictions (CSV / JSON)</h2>
-                <span className="text-sm text-white/40">{showPredictionImport ? '▲' : '▼'}</span>
+                <span className="text-sm text-gray-400">{showPredictionImport ? '▲' : '▼'}</span>
               </button>
 
               {showPredictionImport && (
                 <div className="mt-4 space-y-3">
-                  <p className="text-xs text-white/50">
+                  <p className="text-xs text-gray-500">
                     Import customer predictions for past matches. Matches must already exist
                     (import matches first with results). Points are calculated automatically
                     for finished matches.
                   </p>
-                  <div className="rounded-lg bg-black/20 p-3 text-xs text-white/60">
-                    <p className="font-medium text-white/80">Required:</p>
+                  <div className="rounded-lg bg-gray-100 p-3 text-xs text-gray-500">
+                    <p className="font-medium text-gray-700">Required:</p>
                     <p className="mt-1">phoneNumber, predictedWinner, scoreA, scoreB</p>
-                    <p className="mt-1 font-medium text-fifa-gold">Best: use matchId from Matches tab</p>
+                    <p className="mt-1 font-medium text-fifa-primary">Best: use matchId from Matches tab</p>
                     <p className="mt-1">Or: teamA + teamB (+ startTime ISO UTC if needed)</p>
                     <p className="mt-1">Optional: displayName (creates user if new)</p>
                     <p className="mt-1">predictedWinner: exact team name or &quot;draw&quot;</p>
@@ -681,19 +756,19 @@ Germany,France,2026-06-20T18:00:00.000Z,Group B,,`;
                     <button
                       type="button"
                       onClick={() => downloadSample(SAMPLE_PREDICTIONS_CSV, 'predictions-sample.csv')}
-                      className="rounded-lg border border-white/10 px-3 py-1.5 text-xs text-fifa-gold"
+                      className="rounded-lg border border-gray-200 px-3 py-1.5 text-xs text-fifa-primary"
                     >
                       Download CSV sample
                     </button>
                     <button
                       type="button"
                       onClick={() => downloadSample(SAMPLE_PREDICTIONS_JSON, 'predictions-sample.json')}
-                      className="rounded-lg border border-white/10 px-3 py-1.5 text-xs text-fifa-gold"
+                      className="rounded-lg border border-gray-200 px-3 py-1.5 text-xs text-fifa-primary"
                     >
                       Download JSON sample
                     </button>
                   </div>
-                  <label className="flex cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed border-white/20 bg-white/5 px-4 py-6 transition hover:border-fifa-gold/50">
+                  <label className="flex cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed border-gray-300 bg-gray-50 px-4 py-6 transition hover:border-fifa-primary/50">
                     <span className="text-2xl">📁</span>
                     <span className="mt-2 text-sm font-medium">Choose CSV or JSON file</span>
                     <input
@@ -729,14 +804,14 @@ Germany,France,2026-06-20T18:00:00.000Z,Group B,,`;
             </div>
 
             {predictions.length === 0 && (
-              <p className="text-white/50">No predictions yet</p>
+              <p className="text-gray-500">No predictions yet</p>
             )}
             {predictions.map((p) => (
-              <div key={p._id} className="rounded-xl border border-white/10 bg-white/5 p-3 text-sm">
+              <div key={p._id} className="rounded-xl border border-gray-200 bg-gray-50 p-3 text-sm">
                 <p className="font-medium">
                   {p.user?.displayName || p.user?.phoneNumber}
                 </p>
-                <p className="text-white/50">
+                <p className="text-gray-500">
                   {p.match?.teamA} vs {p.match?.teamB}
                 </p>
                 <p>
@@ -750,7 +825,7 @@ Germany,France,2026-06-20T18:00:00.000Z,Group B,,`;
         {tab === 'customers' && (
           <div className="space-y-3">
             {statistics.length === 0 && (
-              <p className="text-white/50">No customers yet</p>
+              <p className="text-gray-500">No customers yet</p>
             )}
             {statistics.map((entry, i) => {
               const { user, summary, breakdown } = entry;
@@ -758,7 +833,7 @@ Germany,France,2026-06-20T18:00:00.000Z,Group B,,`;
               return (
                 <div
                   key={user._id}
-                  className="rounded-xl border border-white/10 bg-white/5 overflow-hidden"
+                  className="rounded-xl border border-gray-200 bg-gray-50 overflow-hidden"
                 >
                   <button
                     type="button"
@@ -767,13 +842,13 @@ Germany,France,2026-06-20T18:00:00.000Z,Group B,,`;
                   >
                     <div>
                       <p className="font-medium">{user.displayName || user.phoneNumber}</p>
-                      <p className="text-xs text-white/50">{user.phoneNumber}</p>
+                      <p className="text-xs text-gray-500">{user.phoneNumber}</p>
                       <div className="mt-2 flex flex-wrap gap-1.5">
-                        <span className="rounded-full bg-white/10 px-2 py-0.5 text-[10px]">
+                        <span className="rounded-full bg-gray-100 px-2 py-0.5 text-[10px]">
                           {summary.totalPredictions} picks
                         </span>
                         {summary.perfectScores > 0 && (
-                          <span className="rounded-full bg-fifa-gold/20 px-2 py-0.5 text-[10px] text-fifa-gold">
+                          <span className="rounded-full bg-fifa-primary/20 px-2 py-0.5 text-[10px] text-fifa-primary">
                             {summary.perfectScores} × 100pts
                           </span>
                         )}
@@ -788,32 +863,32 @@ Germany,France,2026-06-20T18:00:00.000Z,Group B,,`;
                           </span>
                         )}
                         {summary.pending > 0 && (
-                          <span className="rounded-full bg-white/10 px-2 py-0.5 text-[10px] text-white/50">
+                          <span className="rounded-full bg-gray-100 px-2 py-0.5 text-[10px] text-gray-500">
                             {summary.pending} pending
                           </span>
                         )}
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="font-bold text-fifa-gold">{user.totalPoints} pts</p>
-                      <p className="text-xs text-white/40">#{i + 1}</p>
-                      <p className="mt-1 text-xs text-white/30">{isExpanded ? '▲' : '▼'}</p>
+                      <p className="font-bold text-fifa-primary">{user.totalPoints} pts</p>
+                      <p className="text-xs text-gray-400">#{i + 1}</p>
+                      <p className="mt-1 text-xs text-gray-400">{isExpanded ? '▲' : '▼'}</p>
                     </div>
                   </button>
 
                   {isExpanded && (
-                    <div className="border-t border-white/10 bg-black/20 px-3 py-2">
-                      <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-white/40">
+                    <div className="border-t border-gray-200 bg-gray-100 px-3 py-2">
+                      <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-400">
                         Points breakdown
                       </p>
                       {breakdown.length === 0 ? (
-                        <p className="text-sm text-white/50">No predictions yet</p>
+                        <p className="text-sm text-gray-500">No predictions yet</p>
                       ) : (
                         <div className="space-y-2">
                           {breakdown.map((item) => (
                             <div
                               key={item.predictionId}
-                              className="rounded-lg border border-white/5 bg-white/5 p-2.5 text-sm"
+                              className="rounded-lg border border-gray-100 bg-gray-50 p-2.5 text-sm"
                             >
                               <div className="flex items-start justify-between gap-2">
                                 <div>
@@ -823,18 +898,18 @@ Germany,France,2026-06-20T18:00:00.000Z,Group B,,`;
                                       : 'Match removed'}
                                   </p>
                                   {item.match?.stage && (
-                                    <p className="text-xs text-fifa-gold">{item.match.stage}</p>
+                                    <p className="text-xs text-fifa-primary">{item.match.stage}</p>
                                   )}
                                 </div>
                                 <span
                                   className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-bold ${
                                     item.pointsEarned === 100
-                                      ? 'bg-fifa-gold/20 text-fifa-gold'
+                                      ? 'bg-fifa-primary/20 text-fifa-primary'
                                       : item.pointsEarned === 50
                                         ? 'bg-fifa-green/20 text-fifa-green'
                                         : item.match?.status === 'finished'
                                           ? 'bg-red-500/20 text-red-300'
-                                          : 'bg-white/10 text-white/50'
+                                          : 'bg-gray-100 text-gray-500'
                                   }`}
                                 >
                                   {item.match?.status === 'finished'
@@ -842,17 +917,17 @@ Germany,France,2026-06-20T18:00:00.000Z,Group B,,`;
                                     : '—'}
                                 </span>
                               </div>
-                              <p className="mt-1 text-xs text-white/60">
+                              <p className="mt-1 text-xs text-gray-500">
                                 Pick: {item.predictedWinner === 'draw' ? 'Draw' : item.predictedWinner}{' '}
                                 ({item.predictedScoreA}-{item.predictedScoreB})
                               </p>
                               {item.match?.status === 'finished' && (
-                                <p className="text-xs text-white/50">
+                                <p className="text-xs text-gray-500">
                                   Result: {item.match.scoreA}-{item.match.scoreB} (Winner:{' '}
                                   {item.match.winner === 'draw' ? 'Draw' : item.match.winner})
                                 </p>
                               )}
-                              <p className="mt-1 text-xs text-white/40">{item.reason}</p>
+                              <p className="mt-1 text-xs text-gray-400">{item.reason}</p>
                             </div>
                           ))}
                         </div>

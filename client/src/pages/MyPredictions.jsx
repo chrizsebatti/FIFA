@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../api/client';
 import Layout from '../components/Layout';
-import { formatDateTime } from '../utils/format';
+import MatchCard from '../components/MatchCard';
 
 export default function MyPredictions() {
   const [predictions, setPredictions] = useState([]);
@@ -17,49 +17,29 @@ export default function MyPredictions() {
 
   return (
     <Layout>
-      <h2 className="mb-4 text-xl font-bold">My Predictions</h2>
-      {loading && <p className="text-white/50">Loading...</p>}
+      <h2 className="mb-4 text-xl font-bold text-gray-900">My Predictions</h2>
+      {loading && <p className="text-gray-500">Loading...</p>}
       {!loading && predictions.length === 0 && (
         <div className="text-center">
-          <p className="text-white/50">No predictions yet</p>
-          <Link to="/matches" className="mt-4 inline-block text-fifa-gold">
+          <p className="text-gray-500">No predictions yet</p>
+          <Link to="/matches" className="mt-4 inline-block text-[#FF6D00]">
             Browse matches →
           </Link>
         </div>
       )}
       <div className="space-y-3">
-        {predictions.map((p) => (
-          <Link
-            key={p._id}
-            to={`/matches/${p.match?._id}/predict`}
-            className="block rounded-xl border border-white/10 bg-white/5 p-4"
-          >
-            {p.match ? (
-              <>
-                <p className="text-xs text-white/50">
-                  {p.match.stage || formatDateTime(p.match.startTime)}
-                </p>
-                <p className="font-semibold">
-                  {p.match.teamA} vs {p.match.teamB}
-                </p>
-                <p className="mt-1 text-sm text-white/70">
-                  Pick: {p.predictedWinner === 'draw' ? 'Draw' : p.predictedWinner} (
-                  {p.scoreA}-{p.scoreB})
-                </p>
-                {p.match.status === 'finished' && (
-                  <p className="mt-1 text-sm">
-                    Result: {p.match.scoreA}-{p.match.scoreB} ·{' '}
-                    <span className="font-semibold text-fifa-gold">
-                      {p.pointsEarned} pts
-                    </span>
-                  </p>
-                )}
-              </>
-            ) : (
-              <p className="text-white/50">Match removed</p>
-            )}
-          </Link>
-        ))}
+        {predictions.map((p) =>
+          p.match ? (
+            <MatchCard key={p._id} match={p.match} prediction={p} />
+          ) : (
+            <div
+              key={p._id}
+              className="rounded-xl border border-gray-200 bg-white p-4 text-gray-500 shadow-sm"
+            >
+              Match removed
+            </div>
+          )
+        )}
       </div>
     </Layout>
   );

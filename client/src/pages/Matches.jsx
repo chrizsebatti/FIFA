@@ -1,13 +1,27 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import api from '../api/client';
+import { NoMatchesInProgressIcon } from '../components/EmptyStateIcons';
 import Layout from '../components/Layout';
 import MatchCard from '../components/MatchCard';
+import { getMatchTab } from '../utils/format';
+
+const TABS = [
+  { id: 'upcoming', label: 'Upcoming' },
+  { id: 'in_progress', label: 'In progress' },
+  { id: 'finished', label: 'Finished' },
+];
+
+const EMPTY_MESSAGES = {
+  upcoming: 'No upcoming matches. Check back soon!',
+  finished: 'No finished matches yet.',
+};
 
 export default function Matches() {
   const [matches, setMatches] = useState([]);
   const [predictions, setPredictions] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [tab, setTab] = useState('upcoming');
 
   useEffect(() => {
     Promise.all([api.get('/matches'), api.get('/predictions/me')])
@@ -23,16 +37,52 @@ export default function Matches() {
       .finally(() => setLoading(false));
   }, []);
 
+  const filteredMatches = useMemo(() => {
+    const list = matches.filter((match) => getMatchTab(match) === tab);
+    if (tab === 'upcoming') {
+      return list.sort((a, b) => new Date(a.startTime) - new Date(b.startTime));
+    }
+    return list.sort((a, b) => new Date(b.startTime) - new Date(a.startTime));
+  }, [matches, tab]);
+
   return (
     <Layout>
-      <h2 className="mb-4 text-xl font-bold">Upcoming Matches</h2>
-      {loading && <p className="text-white/50">Loading matches...</p>}
+      <h2 className="mb-4 text-xl font-bold text-gray-900">Matches</h2>
+
+      <div className="mb-4 flex gap-2">
+        {TABS.map((item) => (
+          <button
+            key={item.id}
+            type="button"
+            onClick={() => setTab(item.id)}
+            className={`flex-1 rounded-lg py-2 text-sm transition-colors ${
+              tab === item.id
+                ? 'bg-[#FF6D00] font-semibold text-white'
+                : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+            }`}
+          >
+            {item.label}
+          </button>
+        ))}
+      </div>
+
+      {loading && <p className="text-gray-500">Loading matches...</p>}
       {error && <p className="text-red-400">{error}</p>}
-      {!loading && matches.length === 0 && (
-        <p className="text-white/50">No matches yet. Check back soon!</p>
+      {!loading && !error && filteredMatches.length === 0 && (
+        tab === 'in_progress' ? (
+          <div className="flex flex-col items-center px-4 py-10 text-center">
+            <NoMatchesInProgressIcon />
+            <p className="mt-4 text-base font-semibold text-gray-900">No live action right now</p>
+            <p className="mt-1 max-w-xs text-sm text-gray-500">
+              The pitch is quiet — check Upcoming for the next kickoff.
+            </p>
+          </div>
+        ) : (
+          <p className="text-gray-500">{EMPTY_MESSAGES[tab]}</p>
+        )
       )}
       <div className="space-y-3">
-        {matches.map((match) => (
+        {filteredMatches.map((match) => (
           <MatchCard key={match._id} match={match} prediction={predictions[match._id]} />
         ))}
       </div>

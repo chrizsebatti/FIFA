@@ -59,7 +59,7 @@ export default function Profile() {
   if (loading) {
     return (
       <Layout>
-        <p className="text-white/50">Loading...</p>
+        <p className="text-gray-500">Loading...</p>
       </Layout>
     );
   }
@@ -78,36 +78,37 @@ export default function Profile() {
     <Layout>
       <h2 className="mb-4 text-xl font-bold">Profile</h2>
 
-      <form onSubmit={handleSave} className="mb-6 space-y-4 rounded-xl border border-white/10 bg-white/5 p-4">
+      <form onSubmit={handleSave} className="mb-6 space-y-4 rounded-xl border border-gray-200 bg-gray-50 p-4">
         <div>
-          <label className="mb-1 block text-xs text-white/50">Profile Name</label>
+          <label className="mb-1 block text-xs text-gray-500">Profile Name</label>
           <input
             value={displayName}
             onChange={(e) => setDisplayName(e.target.value)}
             placeholder="Your display name"
-            className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm outline-none focus:border-fifa-gold/50"
+            className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm outline-none focus:border-fifa-primary/50"
           />
         </div>
 
         <div>
-          <label className="mb-1 block text-xs text-white/50">Phone (cannot be changed)</label>
+          <label className="mb-1 block text-xs text-gray-500">Phone (cannot be changed)</label>
           <input
             value={user.phoneNumber}
             disabled
-            className="w-full cursor-not-allowed rounded-lg border border-white/10 bg-white/[0.02] px-3 py-2 text-sm text-white/50 outline-none"
+            className="w-full cursor-not-allowed rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-500 outline-none"
           />
         </div>
 
         <div>
-          <label className="mb-1 block text-xs text-white/50">Favorite Team</label>
+          <label className="mb-1 block text-xs text-gray-500">Favorite Team</label>
           <select
             value={favoriteTeam}
             onChange={(e) => setFavoriteTeam(e.target.value)}
-            className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm outline-none"
+            className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm outline-none"
           >
             <option value="">Select a team</option>
             {teams.map((team) => (
               <option key={team._id} value={team._id}>
+                {team.emoji ? `${team.emoji} ` : ''}
                 {team.name}
               </option>
             ))}
@@ -120,26 +121,26 @@ export default function Profile() {
         <button
           type="submit"
           disabled={saving}
-          className="w-full rounded-lg bg-fifa-gold py-2 text-sm font-semibold text-black disabled:opacity-50"
+          className="w-full rounded-lg bg-fifa-primary py-2 text-sm font-semibold text-white disabled:opacity-50"
         >
           {saving ? 'Saving...' : 'Save Profile'}
         </button>
       </form>
 
       <div className="mb-6 grid grid-cols-3 gap-3">
-        <div className="rounded-xl border border-white/10 bg-white/5 p-4 text-center">
-          <p className="text-2xl font-bold text-fifa-gold">{accuracy}%</p>
-          <p className="mt-1 text-xs text-white/50">Accuracy</p>
+        <div className="rounded-xl border border-gray-200 bg-gray-50 p-4 text-center">
+          <p className="text-2xl font-bold text-fifa-primary">{accuracy}%</p>
+          <p className="mt-1 text-xs text-gray-500">Accuracy</p>
         </div>
-        <div className="rounded-xl border border-white/10 bg-white/5 p-4 text-center">
-          <p className="text-2xl font-bold text-fifa-gold">
+        <div className="rounded-xl border border-gray-200 bg-gray-50 p-4 text-center">
+          <p className="text-2xl font-bold text-fifa-primary">
             {user.currentRank ? `#${user.currentRank}` : '—'}
           </p>
-          <p className="mt-1 text-xs text-white/50">Current Rank</p>
+          <p className="mt-1 text-xs text-gray-500">Current Rank</p>
         </div>
-        <div className="rounded-xl border border-white/10 bg-white/5 p-4 text-center">
-          <p className="text-2xl font-bold text-fifa-gold">{user.totalPoints}</p>
-          <p className="mt-1 text-xs text-white/50">Points</p>
+        <div className="rounded-xl border border-gray-200 bg-gray-50 p-4 text-center">
+          <p className="text-2xl font-bold text-fifa-primary">{user.totalPoints}</p>
+          <p className="mt-1 text-xs text-gray-500">Points</p>
         </div>
       </div>
 
@@ -150,7 +151,7 @@ export default function Profile() {
 
       <section>
         <h3 className="mb-3 text-lg font-semibold">Prediction Statistics</h3>
-        <p className="mb-3 text-xs text-white/50">
+        <p className="mb-3 text-xs text-gray-500">
           See how your picks compare to other users for each match
         </p>
         <PredictionComparison stats={stats} />
