@@ -16,7 +16,7 @@ export default function Layout({ children, showNav = true }) {
 
   return (
     <div className="flex min-h-dvh flex-col">
-      <header className="sticky top-0 z-10 border-b border-[#FF6D00]/25 bg-gradient-to-b from-[#FF6D00]/15 via-[#FF6D00]/8 to-white px-4 py-3 shadow-sm backdrop-blur">
+      <header className="sticky top-0 z-10 border-[#FF6D00]/25 bg-gradient-to-b from-[#FF6D00]/20 via-[#FF6D00]/10 to-white px-4 pb-3 pt-[calc(env(safe-area-inset-top,0px)+0.75rem)] backdrop-blur">
         <div className="mx-auto flex max-w-lg items-center justify-between">
           <div>
             <h1 className="text-lg font-bold text-[#FF6D00]">FIFA WC 2026</h1>

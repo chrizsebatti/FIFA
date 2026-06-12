@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import api from '../api/client';
-import { NoMatchesInProgressIcon } from '../components/EmptyStateIcons';
+import { NoMatchesInProgressIcon, NoUpcomingMatchesIcon } from '../components/EmptyStateIcons';
 import Layout from '../components/Layout';
 import MatchCard from '../components/MatchCard';
 import { getMatchTab } from '../utils/format';
@@ -12,7 +12,6 @@ const TABS = [
 ];
 
 const EMPTY_MESSAGES = {
-  upcoming: 'No upcoming matches. Check back soon!',
   finished: 'No finished matches yet.',
 };
 
@@ -69,7 +68,15 @@ export default function Matches() {
       {loading && <p className="text-gray-500">Loading matches...</p>}
       {error && <p className="text-red-400">{error}</p>}
       {!loading && !error && filteredMatches.length === 0 && (
-        tab === 'in_progress' ? (
+        tab === 'upcoming' ? (
+          <div className="flex flex-col items-center px-4 py-10 text-center">
+            <NoUpcomingMatchesIcon />
+            <p className="mt-4 text-base font-semibold text-gray-900">No upcoming matches</p>
+            <p className="mt-1 max-w-xs text-sm text-gray-500">
+              The schedule is empty — check back soon for the next fixtures.
+            </p>
+          </div>
+        ) : tab === 'in_progress' ? (
           <div className="flex flex-col items-center px-4 py-10 text-center">
             <NoMatchesInProgressIcon />
             <p className="mt-4 text-base font-semibold text-gray-900">No live action right now</p>

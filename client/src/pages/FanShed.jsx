@@ -92,10 +92,10 @@ export default function FanShed() {
         <p className="text-gray-500">No teams added yet. Ask an admin to add teams.</p>
       ) : (
         <>
-          <section className="mb-6 rounded-xl border border-gray-200 bg-gray-50 p-4">
+          {/* <section className="mb-6 rounded-xl border border-gray-200 bg-gray-50 p-4">
             <h3 className="mb-3 text-sm font-semibold text-gray-700">Fan distribution</h3>
             <FanShedChart teams={teams} userFavoriteTeamId={userFavoriteTeamId} />
-          </section>
+          </section> */}
 
           <section>
             <h3 className="mb-3 text-sm font-semibold text-gray-700">Rankings</h3>
