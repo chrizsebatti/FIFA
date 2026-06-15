@@ -178,10 +178,15 @@ router.get('/predictions', adminAuth, async (req, res, next) => {
   try {
     const predictions = await Prediction.find()
       .populate('user', 'phoneNumber displayName')
-      .populate('match', 'teamA teamB stage startTime status')
+      .populate('match', 'teamA teamB stage startTime status scoreA scoreB winner')
       .sort({ createdAt: -1 });
 
-    res.json({ predictions });
+    res.json({
+      predictions: predictions.map((p) => ({
+        ...p.toObject(),
+        reason: getPointsReason(p, p.match),
+      })),
+    });
   } catch (err) {
     next(err);
   }

@@ -4,9 +4,41 @@ import api from '../../api/client';
 import DateTimeInput from '../../components/DateTimeInput';
 import IconActionButton, { DeleteIcon, EditIcon } from '../../components/IconActionButton';
 import ShareMatchButton from '../../components/ShareMatchButton';
-import { formatDateTime, isoToDatetimeLocal, localDatetimeToISO } from '../../utils/format';
+import { formatDateTime, getMatchStatus, isoToDatetimeLocal, localDatetimeToISO, statusLabel } from '../../utils/format';
 
 const TABS = ['matches', 'teams', 'predictions', 'customers'];
+
+function pickLabel(winner) {
+  return winner === 'draw' ? 'Draw' : winner;
+}
+
+function predictionPointsBadge(points, matchFinished) {
+  if (!matchFinished) {
+    return {
+      label: 'Pending',
+      className: 'bg-gray-100 text-gray-500 border-gray-200',
+    };
+  }
+  if (points === 100) {
+    return {
+      label: '+100',
+      sublabel: 'pts',
+      className: 'bg-[#FF6D00]/15 text-[#FF6D00] border-[#FF6D00]/40',
+    };
+  }
+  if (points === 50) {
+    return {
+      label: '+50',
+      sublabel: 'pts',
+      className: 'bg-[#008631]/15 text-[#008631] border-[#008631]/40',
+    };
+  }
+  return {
+    label: '0',
+    sublabel: 'pts',
+    className: 'bg-red-50 text-red-500 border-red-200',
+  };
+}
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
@@ -809,19 +841,127 @@ Germany,France,2026-06-20T18:00:00.000Z,Group B,,`;
             {predictions.length === 0 && (
               <p className="text-gray-500">No predictions yet</p>
             )}
-            {predictions.map((p) => (
-              <div key={p._id} className="rounded-xl border border-gray-200 bg-gray-50 p-3 text-sm">
-                <p className="font-medium">
-                  {p.user?.displayName || p.user?.phoneNumber}
-                </p>
-                <p className="text-gray-500">
-                  {p.match?.teamA} vs {p.match?.teamB}
-                </p>
-                <p>
-                  Pick: {p.predictedWinner} ({p.scoreA}-{p.scoreB}) · {p.pointsEarned} pts
-                </p>
-              </div>
-            ))}
+            <div className="space-y-3">
+              {predictions.map((p) => {
+                const match = p.match;
+                const isFinished = match?.status === 'finished';
+                const matchStatus = match ? getMatchStatus(match) : null;
+                const status = matchStatus ? statusLabel(matchStatus) : null;
+                const pointsBadge = predictionPointsBadge(p.pointsEarned, isFinished);
+
+                return (
+                  <div
+                    key={p._id}
+                    className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm"
+                  >
+                    <div className="flex items-start justify-between gap-3 border-b border-gray-100 bg-gray-50 px-4 py-3">
+                      <div className="min-w-0">
+                        <p className="truncate font-semibold text-gray-900">
+                          {p.user?.displayName || 'Unknown user'}
+                        </p>
+                        <p className="text-xs text-gray-500">{p.user?.phoneNumber}</p>
+                      </div>
+                      <div
+                        className={`flex shrink-0 flex-col items-center rounded-xl border px-3 py-1.5 ${pointsBadge.className}`}
+                      >
+                        <span className="text-xl font-bold leading-none">{pointsBadge.label}</span>
+                        {pointsBadge.sublabel && (
+                          <span className="text-[10px] font-semibold uppercase tracking-wide opacity-80">
+                            {pointsBadge.sublabel}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    {match ? (
+                      <>
+                        <div className="px-4 py-3">
+                          {match.stage && (
+                            <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-[#FF6D00]">
+                              {match.stage}
+                            </p>
+                          )}
+                          <div className="flex items-center justify-between gap-2">
+                            <p className="font-medium text-gray-900">
+                              {match.teamA} <span className="text-gray-400">vs</span> {match.teamB}
+                            </p>
+                            {status && (
+                              <span
+                                className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium ${status.className}`}
+                              >
+                                {status.text}
+                              </span>
+                            )}
+                          </div>
+                          {match.startTime && (
+                            <p className="mt-1 text-xs text-gray-500">
+                              {formatDateTime(match.startTime)}
+                            </p>
+                          )}
+                        </div>
+
+                        <div className="border-t border-gray-100 bg-gray-50/60 px-4 py-3">
+                          <div className="grid grid-cols-2 gap-3">
+                            <div className="rounded-lg border border-[#FF6D00]/25 bg-[#FF6D00]/5 p-3 text-center">
+                              <p className="text-[10px] font-semibold uppercase tracking-wider text-gray-500">
+                                Prediction
+                              </p>
+                              <p className="mt-1 truncate text-sm font-semibold text-gray-900">
+                                {pickLabel(p.predictedWinner)}
+                              </p>
+                              <p className="mt-1 text-2xl font-bold tabular-nums text-[#FF6D00]">
+                                {p.scoreA}–{p.scoreB}
+                              </p>
+                            </div>
+
+                            {isFinished ? (
+                              <div className="rounded-lg border border-gray-200 bg-white p-3 text-center">
+                                <p className="text-[10px] font-semibold uppercase tracking-wider text-gray-500">
+                                  Result
+                                </p>
+                                <p className="mt-1 truncate text-sm font-semibold text-gray-900">
+                                  {pickLabel(match.winner)}
+                                </p>
+                                <p className="mt-1 text-2xl font-bold tabular-nums text-gray-900">
+                                  {match.scoreA}–{match.scoreB}
+                                </p>
+                              </div>
+                            ) : (
+                              <div className="flex items-center justify-center rounded-lg border border-dashed border-gray-200 bg-white p-3">
+                                <p className="text-xs text-gray-400">Awaiting result</p>
+                              </div>
+                            )}
+                          </div>
+
+                          {p.reason && (
+                            <p
+                              className={`mt-2 text-center text-xs font-medium ${
+                                p.pointsEarned === 100
+                                  ? 'text-[#FF6D00]'
+                                  : p.pointsEarned === 50
+                                    ? 'text-[#008631]'
+                                    : isFinished
+                                      ? 'text-red-500'
+                                      : 'text-gray-500'
+                              }`}
+                            >
+                              {p.reason}
+                            </p>
+                          )}
+                        </div>
+                      </>
+                    ) : (
+                      <div className="px-4 py-3">
+                        <p className="text-sm text-gray-500">Match removed</p>
+                        <p className="mt-2 text-xs text-gray-400">
+                          Pick: {pickLabel(p.predictedWinner)} ({p.scoreA}–{p.scoreB})
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
           </div>
         )}
 
