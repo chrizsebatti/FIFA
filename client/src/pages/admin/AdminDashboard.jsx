@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../api/client';
 import DateTimeInput from '../../components/DateTimeInput';
@@ -7,6 +7,40 @@ import ShareMatchButton from '../../components/ShareMatchButton';
 import { formatDateTime, getMatchStatus, isoToDatetimeLocal, localDatetimeToISO, statusLabel } from '../../utils/format';
 
 const TABS = ['matches', 'teams', 'predictions', 'customers'];
+
+const LIST_SUBTABS = [
+  { id: 'in_progress', label: 'In Progress' },
+  { id: 'completed', label: 'Completed' },
+];
+
+function AdminSubTabs({ active, onChange }) {
+  return (
+    <div className="flex gap-2">
+      {LIST_SUBTABS.map((item) => (
+        <button
+          key={item.id}
+          type="button"
+          onClick={() => onChange(item.id)}
+          className={`flex-1 rounded-lg py-2 text-sm transition-colors ${
+            active === item.id
+              ? 'bg-[#FF6D00] font-semibold text-white'
+              : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+          }`}
+        >
+          {item.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function isMatchCompleted(match) {
+  return match.status === 'finished';
+}
+
+function isPredictionCompleted(prediction) {
+  return prediction.match?.status === 'finished';
+}
 
 function pickLabel(winner) {
   return winner === 'draw' ? 'Draw' : winner;
@@ -65,6 +99,8 @@ export default function AdminDashboard() {
   const [importResult, setImportResult] = useState(null);
   const [showPredictionImport, setShowPredictionImport] = useState(false);
   const [predictionImportResult, setPredictionImportResult] = useState(null);
+  const [matchListTab, setMatchListTab] = useState('in_progress');
+  const [predictionListTab, setPredictionListTab] = useState('in_progress');
 
   const SAMPLE_CSV = `teamA,teamB,startTime,stage,scoreA,scoreB
 Brazil,Argentina,2026-06-15T11:30:00.000Z,Group A,2,1
@@ -316,9 +352,35 @@ Germany,France,2026-06-20T18:00:00.000Z,Group B,,`;
     }
   };
 
+  const filteredMatches = useMemo(() => {
+    const list = matches.filter((match) =>
+      matchListTab === 'completed' ? isMatchCompleted(match) : !isMatchCompleted(match)
+    );
+
+    if (matchListTab === 'completed') {
+      return list.sort((a, b) => new Date(b.startTime) - new Date(a.startTime));
+    }
+
+    return list.sort((a, b) => new Date(a.startTime) - new Date(b.startTime));
+  }, [matches, matchListTab]);
+
+  const filteredPredictions = useMemo(() => {
+    const list = predictions.filter((prediction) =>
+      predictionListTab === 'completed'
+        ? isPredictionCompleted(prediction)
+        : !isPredictionCompleted(prediction)
+    );
+
+    return list.sort((a, b) => {
+      const aTime = a.match?.startTime ? new Date(a.match.startTime) : 0;
+      const bTime = b.match?.startTime ? new Date(b.match.startTime) : 0;
+      return predictionListTab === 'completed' ? bTime - aTime : aTime - bTime;
+    });
+  }, [predictions, predictionListTab]);
+
   return (
     <div className="min-h-dvh bg-white">
-      <header className="sticky top-0 z-10 border-b border-[#FF6D00]/25 bg-gradient-to-b from-[#FF6D00]/15 via-[#FF6D00]/8 to-white px-4 py-3 shadow-sm backdrop-blur">
+      <header className="sticky top-0 z-30 border-b border-[#FF6D00]/25 bg-white/95 px-4 py-3 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-white/90">
         <div className="mx-auto flex max-w-2xl items-center justify-between">
           <div>
             <h1 className="text-lg font-bold text-[#FF6D00]">Admin Dashboard</h1>
@@ -490,26 +552,19 @@ Germany,France,2026-06-20T18:00:00.000Z,Group B,,`;
               )}
             </div>
 
+            <AdminSubTabs active={matchListTab} onChange={setMatchListTab} />
+
+            {matches.length === 0 && (
+              <p className="text-gray-500">No matches yet</p>
+            )}
+            {matches.length > 0 && filteredMatches.length === 0 && (
+              <p className="text-gray-500">
+                No {matchListTab === 'completed' ? 'completed' : 'in progress'} matches
+              </p>
+            )}
             <div className="space-y-3">
-              {matches.map((match) => (
-                <div key={match._id} className="relative rounded-xl border border-gray-200 bg-gray-50 p-4">
-                  {editingId !== match._id && (
-                    <div className="absolute right-3 top-3 z-10 flex items-center gap-1">
-                      {match.status !== 'finished' && <ShareMatchButton match={match} />}
-                      {match.status !== 'finished' && (
-                        <IconActionButton title="Edit match" variant="orange" onClick={() => startEdit(match)}>
-                          <EditIcon />
-                        </IconActionButton>
-                      )}
-                      <IconActionButton
-                        title="Delete match"
-                        variant="red"
-                        onClick={() => deleteMatch(match._id)}
-                      >
-                        <DeleteIcon />
-                      </IconActionButton>
-                    </div>
-                  )}
+              {filteredMatches.map((match) => (
+                <div key={match._id} className="rounded-xl border border-gray-200 bg-gray-50 p-4">
                   {editingId === match._id ? (
                     <div className="space-y-3">
                       <h3 className="text-sm font-semibold text-fifa-primary">Edit Match</h3>
@@ -560,20 +615,37 @@ Germany,France,2026-06-20T18:00:00.000Z,Group B,,`;
                     </div>
                   ) : (
                     <>
-                      <div className="pr-24">
-                        <p className="text-xs text-fifa-primary">{match.stage || 'Match'}</p>
-                        <p className="font-semibold">
-                          {match.teamA} vs {match.teamB}
-                        </p>
-                        <p className="text-xs text-gray-500">{formatDateTime(match.startTime)}</p>
-                        <p className="mt-1 break-all text-[10px] text-gray-400">
-                          ID: {match._id}
-                        </p>
-                        {match.status === 'finished' && (
-                          <p className="mt-1 text-sm">
-                            Result: {match.scoreA}-{match.scoreB} (Winner: {match.winner})
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0 flex-1">
+                          <p className="text-xs text-fifa-primary">{match.stage || 'Match'}</p>
+                          <p className="font-semibold">
+                            {match.teamA} vs {match.teamB}
                           </p>
-                        )}
+                          <p className="text-xs text-gray-500">{formatDateTime(match.startTime)}</p>
+                          <p className="mt-1 break-all text-[10px] text-gray-400">
+                            ID: {match._id}
+                          </p>
+                          {match.status === 'finished' && (
+                            <p className="mt-1 text-sm">
+                              Result: {match.scoreA}-{match.scoreB} (Winner: {match.winner})
+                            </p>
+                          )}
+                        </div>
+                        <div className="flex shrink-0 items-center gap-1">
+                          {match.status !== 'finished' && <ShareMatchButton match={match} />}
+                          {match.status !== 'finished' && (
+                            <IconActionButton title="Edit match" variant="orange" onClick={() => startEdit(match)}>
+                              <EditIcon />
+                            </IconActionButton>
+                          )}
+                          <IconActionButton
+                            title="Delete match"
+                            variant="red"
+                            onClick={() => deleteMatch(match._id)}
+                          >
+                            <DeleteIcon />
+                          </IconActionButton>
+                        </div>
                       </div>
                       {match.status !== 'finished' && (
                         <div className="mt-3 flex items-center gap-2">
@@ -838,11 +910,18 @@ Germany,France,2026-06-20T18:00:00.000Z,Group B,,`;
               )}
             </div>
 
+            <AdminSubTabs active={predictionListTab} onChange={setPredictionListTab} />
+
             {predictions.length === 0 && (
               <p className="text-gray-500">No predictions yet</p>
             )}
+            {predictions.length > 0 && filteredPredictions.length === 0 && (
+              <p className="text-gray-500">
+                No {predictionListTab === 'completed' ? 'completed' : 'in progress'} predictions
+              </p>
+            )}
             <div className="space-y-3">
-              {predictions.map((p) => {
+              {filteredPredictions.map((p) => {
                 const match = p.match;
                 const isFinished = match?.status === 'finished';
                 const matchStatus = match ? getMatchStatus(match) : null;
