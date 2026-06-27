@@ -4,9 +4,18 @@ import api from '../../api/client';
 import DateTimeInput from '../../components/DateTimeInput';
 import IconActionButton, { DeleteIcon, EditIcon } from '../../components/IconActionButton';
 import ShareMatchButton from '../../components/ShareMatchButton';
+import AdminBracketTab from './AdminBracketTab';
 import { formatDateTime, getMatchStatus, isoToDatetimeLocal, localDatetimeToISO, statusLabel } from '../../utils/format';
 
-const TABS = ['matches', 'teams', 'predictions', 'customers'];
+const TABS = ['matches', 'teams', 'predictions', 'customers', 'bracket'];
+
+const TAB_LABELS = {
+  matches: 'Matches',
+  teams: 'Teams',
+  predictions: 'Predictions',
+  customers: 'Customers',
+  bracket: 'Knock-Out',
+};
 
 const LIST_SUBTABS = [
   { id: 'in_progress', label: 'In Progress' },
@@ -400,13 +409,13 @@ Germany,France,2026-06-20T18:00:00.000Z,Group B,,`;
               key={t}
               type="button"
               onClick={() => setTab(t)}
-              className={`flex-1 rounded-lg py-2 text-sm capitalize transition-colors ${
+              className={`flex-1 rounded-lg py-2 text-sm transition-colors ${
                 tab === t
                   ? 'bg-[#FF6D00] font-semibold text-white'
                   : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
               }`}
             >
-              {t}
+              {TAB_LABELS[t] || t}
             </button>
           ))}
         </div>
@@ -1160,6 +1169,15 @@ Germany,France,2026-06-20T18:00:00.000Z,Group B,,`;
               );
             })}
           </div>
+        )}
+
+        {tab === 'bracket' && (
+          <AdminBracketTab
+            teams={teams}
+            loading={loading}
+            setLoading={setLoading}
+            setError={setError}
+          />
         )}
       </main>
     </div>

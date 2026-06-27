@@ -8,6 +8,7 @@ import Leaderboard from './pages/Leaderboard';
 import MyPredictions from './pages/MyPredictions';
 import Profile from './pages/Profile';
 import FanShed from './pages/FanShed';
+import RoadToTrophy from './pages/RoadToTrophy';
 import AdminLogin from './pages/admin/AdminLogin';
 import AdminDashboard from './pages/admin/AdminDashboard';
 
@@ -59,6 +60,14 @@ export default function App() {
         element={
           <ProtectedRoute>
             <MyPredictions />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/road-to-trophy"
+        element={
+          <ProtectedRoute>
+            <RoadToTrophy />
           </ProtectedRoute>
         }
       />

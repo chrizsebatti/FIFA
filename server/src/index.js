@@ -13,6 +13,7 @@ import leaderboardRoutes from './routes/leaderboard.js';
 import adminRoutes from './routes/admin.js';
 import teamsRoutes from './routes/teams.js';
 import statsRoutes from './routes/stats.js';
+import bracketRoutes from './routes/bracket.js';
 
 // const cors = require('cors');
 
@@ -52,6 +53,7 @@ app.use('/api/predictions', predictionRoutes);
 app.use('/api/leaderboard', leaderboardRoutes);
 app.use('/api/teams', teamsRoutes);
 app.use('/api/stats', statsRoutes);
+app.use('/api/bracket', bracketRoutes);
 app.use('/api/admin', adminRoutes);
 
 app.get('/api/health', (req, res) => {

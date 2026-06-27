@@ -3,9 +3,10 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import api from '../api/client';
 import Layout from '../components/Layout';
 import MatchDetailLoader from '../components/MatchDetailLoader';
+import MatchPredictionsPoll from '../components/MatchPredictionsPoll';
 import MatchResultLeaderboard from '../components/MatchResultLeaderboard';
 import PredictionForm from '../components/PredictionForm';
-import { formatDateTime, getMatchStatus, statusLabel } from '../utils/format';
+import { formatDateTime, getMatchStatus, getMatchTab, statusLabel } from '../utils/format';
 import MatchCountdown from '../components/MatchCountdown';
 import TeamFlag from '../components/TeamFlag';
 import { validatePredictionConsistency } from '../utils/predictionValidation';
@@ -44,21 +45,18 @@ export default function Predict() {
     Promise.all([
       api.get(`/matches/${id}/my-prediction`),
       api.get(`/matches/${id}/prediction-stats`),
+      api.get(`/matches/${id}/participants`),
       api.get('/teams'),
     ])
-      .then(([predRes, statsRes, teamsRes]) => {
+      .then(([predRes, statsRes, participantsRes, teamsRes]) => {
         setMatch(predRes.data.match);
         setPredictionStats(statsRes.data);
+        setParticipants(participantsRes.data.participants);
         setTeamEmojiMap(buildTeamEmojiMap(teamsRes.data.teams));
         if (predRes.data.prediction) {
           setPrediction(predRes.data.prediction);
           setScoreA(String(predRes.data.prediction.scoreA));
           setScoreB(String(predRes.data.prediction.scoreB));
-        }
-        if (predRes.data.match?.status === 'finished') {
-          return api.get(`/matches/${id}/participants`).then((pRes) => {
-            setParticipants(pRes.data.participants);
-          });
         }
       })
       .catch(() => setError('Failed to load match'))
@@ -124,6 +122,7 @@ export default function Predict() {
   const badge = statusLabel(status);
   const locked = match.isLocked;
   const isFinished = match.status === 'finished';
+  const isInProgress = getMatchTab(match) === 'in_progress';
 
   return (
     <Layout>
@@ -216,6 +215,7 @@ export default function Predict() {
             predictionStats={predictionStats}
             teamEmojiMap={teamEmojiMap}
           />
+          <MatchPredictionsPoll participants={participants} isLive={isInProgress} />
         </div>
       )}
     </Layout>

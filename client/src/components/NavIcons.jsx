@@ -99,11 +99,33 @@ export function ProfileIcon({ className = iconClass }) {
   );
 }
 
+export function TrophyIcon({ className = iconClass }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path
+        d="M8 21h8M7 4h10l1 4H6l1-4ZM6 8h12v2a6 6 0 0 1-6 6 6 6 0 0 1-6-6V8Z"
+        stroke="currentColor"
+        strokeWidth="1.75"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M5 8H3v1a3 3 0 0 0 3 3M19 8h2v1a3 3 0 0 1-3 3"
+        stroke="currentColor"
+        strokeWidth="1.75"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
 const NAV_ICONS = {
   matches: MatchesIcon,
   board: BoardIcon,
   picks: PicksIcon,
   fans: FansIcon,
+  trophy: TrophyIcon,
   profile: ProfileIcon,
 };
 

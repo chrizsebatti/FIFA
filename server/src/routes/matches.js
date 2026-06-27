@@ -21,16 +21,17 @@ function maskPhone(phone) {
   return `***${phone.slice(-4)}`;
 }
 
-router.get('/:id/participants', async (req, res, next) => {
+router.get('/:id/participants', auth, async (req, res, next) => {
   try {
     const match = await Match.findById(req.params.id);
     if (!match) {
       return res.status(404).json({ error: 'Match not found' });
     }
 
+    const isFinished = match.status === 'finished';
     const predictions = await Prediction.find({ match: match._id })
       .populate('user', 'displayName phoneNumber')
-      .sort({ pointsEarned: -1, createdAt: 1 });
+      .sort(isFinished ? { pointsEarned: -1, createdAt: 1 } : { createdAt: 1 });
 
     res.json({
       match: formatMatch(match),

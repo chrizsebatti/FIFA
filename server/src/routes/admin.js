@@ -11,6 +11,19 @@ import { getPointsReason, getWinner, scoreMatch } from '../services/scoring.js';
 import { isLocked } from '../services/predictionLock.js';
 import { normalizeTeamColor } from '../utils/teamColor.js';
 import { normalizeTeamEmoji } from '../utils/teamEmoji.js';
+import BracketMatch from '../models/BracketMatch.js';
+import UserBracketSubmission from '../models/UserBracketSubmission.js';
+import { getBracketConfig } from '../models/BracketConfig.js';
+import { seedBracketMatches } from '../services/bracketSeed.js';
+import {
+  evaluateStage,
+  getRoundCompletionStatus,
+  maybeEvaluateAfterWinner,
+  syncAllBracketPoints,
+  syncR32Complete,
+} from '../services/bracketScoring.js';
+import { resolveMatchTeams } from '../services/bracketResolver.js';
+import { BRACKET_STAGES } from '../services/bracketTopology.js';
 
 const router = Router();
 
@@ -334,6 +347,145 @@ router.delete('/teams/:id', adminAuth, async (req, res, next) => {
     team.isActive = false;
     await team.save();
     res.json({ team });
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.post('/bracket/seed', adminAuth, async (req, res, next) => {
+  try {
+    const result = await seedBracketMatches();
+    res.json(result);
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.get('/bracket', adminAuth, async (req, res, next) => {
+  try {
+    const [matches, config, lockedCount] = await Promise.all([
+      BracketMatch.find().sort({ round: 1, matchIndex: 1 }).lean(),
+      getBracketConfig(),
+      UserBracketSubmission.countDocuments({ status: 'locked' }),
+    ]);
+
+    const matchesByKey = new Map(matches.map((m) => [m.key, m]));
+    const resolved = matches.map((match) => {
+      const { teamA, teamB } = resolveMatchTeams(match, matchesByKey, new Map(), true);
+      return { ...match, resolvedTeamA: teamA, resolvedTeamB: teamB };
+    });
+
+    res.json({
+      matches: resolved,
+      config,
+      lockedSubmissions: lockedCount,
+      roundStatus: getRoundCompletionStatus(matches),
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.put('/bracket/r32/:key', adminAuth, async (req, res, next) => {
+  try {
+    const { teamA, teamB } = req.body;
+    const match = await BracketMatch.findOne({ key: req.params.key, round: 'r32' });
+    if (!match) {
+      return res.status(404).json({ error: 'R32 match not found' });
+    }
+
+    const lockedCount = await UserBracketSubmission.countDocuments({ status: 'locked' });
+    if (lockedCount > 0) {
+      return res.status(400).json({ error: 'Cannot edit R32 after customers have submitted brackets' });
+    }
+
+    if (teamA !== undefined) {
+      if (teamA) {
+        const team = await Team.findOne({ name: teamA.trim(), isActive: true });
+        if (!team) return res.status(400).json({ error: `Team not found: ${teamA}` });
+        match.teamA = team.name;
+      } else {
+        match.teamA = null;
+      }
+    }
+    if (teamB !== undefined) {
+      if (teamB) {
+        const team = await Team.findOne({ name: teamB.trim(), isActive: true });
+        if (!team) return res.status(400).json({ error: `Team not found: ${teamB}` });
+        match.teamB = team.name;
+      } else {
+        match.teamB = null;
+      }
+    }
+
+    await match.save();
+    const config = await syncR32Complete();
+
+    res.json({ match, config });
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.put('/bracket/:key/winner', adminAuth, async (req, res, next) => {
+  try {
+    const { winner } = req.body;
+    const matches = await BracketMatch.find().lean();
+    const match = matches.find((m) => m.key === req.params.key);
+    if (!match) {
+      return res.status(404).json({ error: 'Bracket match not found' });
+    }
+
+    const matchesByKey = new Map(matches.map((m) => [m.key, m]));
+    const { teamA, teamB } = resolveMatchTeams(match, matchesByKey, new Map(), true);
+
+    if (!teamA || !teamB) {
+      return res.status(400).json({ error: 'Both teams must be set before recording a winner' });
+    }
+    if (winner !== teamA && winner !== teamB) {
+      return res.status(400).json({ error: `Winner must be ${teamA} or ${teamB}` });
+    }
+
+    const updated = await BracketMatch.findOneAndUpdate(
+      { key: req.params.key },
+      { actualWinner: winner },
+      { new: true }
+    );
+
+    const evalResult = await maybeEvaluateAfterWinner(req.params.key);
+
+    res.json({
+      match: updated,
+      evaluation: evalResult,
+      roundStatus: getRoundCompletionStatus(
+        await BracketMatch.find().lean()
+      ),
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.post('/bracket/evaluate/:stage', adminAuth, async (req, res, next) => {
+  try {
+    const { stage } = req.params;
+    if (!BRACKET_STAGES.includes(stage)) {
+      return res.status(400).json({ error: 'Invalid stage' });
+    }
+    const result = await evaluateStage(stage);
+    res.json(result);
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.post('/bracket/sync', adminAuth, async (req, res, next) => {
+  try {
+    const result = await syncAllBracketPoints();
+    res.json({
+      ...result,
+      roundStatus: getRoundCompletionStatus(await BracketMatch.find().lean()),
+    });
   } catch (err) {
     next(err);
   }

@@ -5,6 +5,7 @@ import { NavIcon } from './NavIcons';
 const navItems = [
   { to: '/matches', label: 'Matches', icon: 'matches' },
   { to: '/leaderboard', label: 'Board', icon: 'board' },
+  { to: '/road-to-trophy', label: 'Trophy', icon: 'trophy' },
   { to: '/my-predictions', label: 'My Picks', icon: 'picks' },
   { to: '/fan-shed', label: 'Fans', icon: 'fans' },
   { to: '/profile', label: 'Profile', icon: 'profile' },
