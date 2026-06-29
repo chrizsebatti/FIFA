@@ -21,7 +21,7 @@ export default function BracketSubmitBar({
           </span>
         )}
       </div>
-      {!locked && (
+      {/* {!locked && (
         <div className="flex gap-2">
           <button
             type="button"
@@ -40,7 +40,7 @@ export default function BracketSubmitBar({
             {saving ? 'Submitting...' : 'Submit knock-out'}
           </button>
         </div>
-      )}
+      )} */}
       {!predictionsEnabled && !locked && (
         <p className="mt-2 text-center text-xs text-gray-500">
           Waiting for all Round of 32 teams to be set
