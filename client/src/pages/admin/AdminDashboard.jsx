@@ -195,16 +195,30 @@ Germany,France,2026-06-20T18:00:00.000Z,Group B,,`;
     }
   };
 
-  const enterResult = async (matchId) => {
-    const { scoreA, scoreB } = resultForm[matchId] || {};
+  const enterResult = async (match) => {
+    const form = resultForm[match._id] || {};
+    const scoreA =
+      form.scoreA !== undefined && form.scoreA !== ''
+        ? form.scoreA
+        : match.status === 'finished'
+          ? match.scoreA
+          : null;
+    const scoreB =
+      form.scoreB !== undefined && form.scoreB !== ''
+        ? form.scoreB
+        : match.status === 'finished'
+          ? match.scoreB
+          : null;
+
     if (scoreA == null || scoreB == null) return;
+
     setLoading(true);
     try {
-      await api.put(`/admin/matches/${matchId}`, {
+      await api.put(`/admin/matches/${match._id}`, {
         scoreA: Number(scoreA),
         scoreB: Number(scoreB),
       });
-      setResultForm((prev) => ({ ...prev, [matchId]: undefined }));
+      setResultForm((prev) => ({ ...prev, [match._id]: undefined }));
       await loadData();
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to save result');
@@ -656,43 +670,54 @@ Germany,France,2026-06-20T18:00:00.000Z,Group B,,`;
                           </IconActionButton>
                         </div>
                       </div>
-                      {match.status !== 'finished' && (
-                        <div className="mt-3 flex items-center gap-2">
-                          <input
-                            type="number"
-                            min="0"
-                            placeholder="A"
-                            value={resultForm[match._id]?.scoreA ?? ''}
-                            onChange={(e) =>
-                              setResultForm((prev) => ({
-                                ...prev,
-                                [match._id]: { ...prev[match._id], scoreA: e.target.value },
-                              }))
-                            }
-                            className="w-16 rounded border border-gray-200 bg-gray-50 px-2 py-1 text-sm"
-                          />
-                          <span>-</span>
-                          <input
-                            type="number"
-                            min="0"
-                            placeholder="B"
-                            value={resultForm[match._id]?.scoreB ?? ''}
-                            onChange={(e) =>
-                              setResultForm((prev) => ({
-                                ...prev,
-                                [match._id]: { ...prev[match._id], scoreB: e.target.value },
-                              }))
-                            }
-                            className="w-16 rounded border border-gray-200 bg-gray-50 px-2 py-1 text-sm"
-                          />
-                          <button
-                            onClick={() => enterResult(match._id)}
-                            className="rounded bg-fifa-primary px-3 py-1 text-xs font-semibold text-white"
-                          >
-                            Save Result
-                          </button>
-                        </div>
-                      )}
+                      <div className="mt-3 flex flex-wrap items-center gap-2">
+                        <input
+                          type="number"
+                          min="0"
+                          placeholder="A"
+                          value={
+                            resultForm[match._id]?.scoreA ??
+                            (match.status === 'finished' ? match.scoreA : '')
+                          }
+                          onChange={(e) =>
+                            setResultForm((prev) => ({
+                              ...prev,
+                              [match._id]: { ...prev[match._id], scoreA: e.target.value },
+                            }))
+                          }
+                          className="w-16 rounded border border-gray-200 bg-gray-50 px-2 py-1 text-sm"
+                        />
+                        <span>-</span>
+                        <input
+                          type="number"
+                          min="0"
+                          placeholder="B"
+                          value={
+                            resultForm[match._id]?.scoreB ??
+                            (match.status === 'finished' ? match.scoreB : '')
+                          }
+                          onChange={(e) =>
+                            setResultForm((prev) => ({
+                              ...prev,
+                              [match._id]: { ...prev[match._id], scoreB: e.target.value },
+                            }))
+                          }
+                          className="w-16 rounded border border-gray-200 bg-gray-50 px-2 py-1 text-sm"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => enterResult(match)}
+                          disabled={loading}
+                          className="rounded bg-fifa-primary px-3 py-1 text-xs font-semibold text-white disabled:opacity-50"
+                        >
+                          {match.status === 'finished' ? 'Update Score' : 'Save Result'}
+                        </button>
+                        {match.status === 'finished' && (
+                          <span className="text-[10px] text-gray-500">
+                            Recalculates prediction points
+                          </span>
+                        )}
+                      </div>
                     </>
                   )}
                 </div>

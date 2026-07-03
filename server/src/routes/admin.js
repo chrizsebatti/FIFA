@@ -132,12 +132,17 @@ router.put('/matches/:id', adminAuth, async (req, res, next) => {
     if (startTime) match.startTime = new Date(startTime);
     if (stage !== undefined) match.stage = stage.trim();
 
-    const enteringResult = scoreA != null && scoreB != null;
-    if (enteringResult) {
+    const updatingScore = scoreA != null && scoreB != null;
+    if (updatingScore) {
       const scoreANum = Number(scoreA);
       const scoreBNum = Number(scoreB);
-      if (scoreANum < 0 || scoreBNum < 0) {
-        return res.status(400).json({ error: 'Scores must be non-negative' });
+      if (
+        scoreANum < 0 ||
+        scoreBNum < 0 ||
+        !Number.isInteger(scoreANum) ||
+        !Number.isInteger(scoreBNum)
+      ) {
+        return res.status(400).json({ error: 'Scores must be non-negative integers' });
       }
       match.scoreA = scoreANum;
       match.scoreB = scoreBNum;
@@ -147,7 +152,7 @@ router.put('/matches/:id', adminAuth, async (req, res, next) => {
 
     await match.save();
 
-    if (enteringResult) {
+    if (updatingScore) {
       await scoreMatch(match);
     }
 
