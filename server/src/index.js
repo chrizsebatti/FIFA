@@ -20,6 +20,20 @@ const app = express();
 const PORT = Number(process.env.PORT) || 5001;
 
 // --------------------------------------------------
+// REQUEST LOGGER
+// --------------------------------------------------
+
+app.use((req, res, next) => {
+  console.log({
+    method: req.method,
+    url: req.originalUrl,
+    origin: req.headers.origin,
+  });
+
+  next();
+});
+
+// --------------------------------------------------
 // CORS CONFIGURATION
 // --------------------------------------------------
 
@@ -33,12 +47,10 @@ const allowedOrigins = [
     .filter(Boolean),
 ];
 
-// Remove duplicate origins
 const uniqueAllowedOrigins = [...new Set(allowedOrigins)];
 
 const corsOptions = {
   origin(origin, callback) {
-    // Allow non-browser requests without an Origin header
     if (!origin) {
       return callback(null, true);
     }
@@ -47,14 +59,14 @@ const corsOptions = {
       origin.replace(/\/$/, '')
     );
 
-    if (!isAllowed) {
-      console.error('CORS blocked origin:', origin);
-      console.log('Allowed origins:', uniqueAllowedOrigins);
+    console.log('CORS Origin:', origin);
+    console.log('CORS Allowed:', isAllowed);
 
-      return callback(null, false);
+    if (!isAllowed) {
+      console.error('Blocked Origin:', origin);
     }
 
-    return callback(null, true);
+    return callback(null, isAllowed);
   },
 
   credentials: true,
@@ -76,11 +88,24 @@ const corsOptions = {
   optionsSuccessStatus: 204,
 };
 
-// Register CORS before API routes
+// Register CORS before all routes
 app.use(cors(corsOptions));
 
-// Handle JSON request bodies
+// Parse JSON
 app.use(express.json());
+
+// --------------------------------------------------
+// HEALTH CHECK
+// --------------------------------------------------
+
+app.get('/api/health', (req, res) => {
+  res.status(200).json({
+    status: 'ok',
+    application: 'soccer-edathirinji-server',
+    version: '1.0.0',
+    cors: 'enabled',
+  });
+});
 
 // --------------------------------------------------
 // API ROUTES
@@ -90,17 +115,6 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/admin/members', membersRoutes);
 app.use('/api/admin/ground-rent', groundRentRoutes);
 app.use('/api/admin/finance', financeRoutes);
-
-// --------------------------------------------------
-// HEALTH CHECK
-// --------------------------------------------------
-
-app.get('/api/health', (req, res) => {
-  res.json({
-    status: 'ok',
-    message: 'Server is running',
-  });
-});
 
 // --------------------------------------------------
 // API 404 HANDLER
@@ -146,6 +160,7 @@ const server = app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on port ${PORT}`);
 
   console.log('Allowed CORS origins:');
+
   uniqueAllowedOrigins.forEach((origin) => {
     console.log(` - ${origin}`);
   });
@@ -154,7 +169,7 @@ const server = app.listen(PORT, '0.0.0.0', () => {
 server.on('error', (err) => {
   if (err.code === 'EADDRINUSE') {
     console.error(
-      `Port ${PORT} is already in use. Change PORT in server/.env (macOS often uses 5000 for AirPlay).`
+      `Port ${PORT} is already in use.`
     );
 
     process.exit(1);
