@@ -91,43 +91,30 @@ const corsOptions = {
 // Register CORS before all routes
 app.use(cors(corsOptions));
 
-// Parse JSON
+app.get('/test', (req, res) => {
+  res.json({ message: 'Backend routing works' });
+});
+
 app.use(express.json());
 
-// --------------------------------------------------
-// HEALTH CHECK
-// --------------------------------------------------
-
+// Health check
 app.get('/api/health', (req, res) => {
   res.status(200).json({
     status: 'ok',
     application: 'soccer-edathirinji-server',
     version: '1.0.0',
-    cors: 'enabled',
   });
 });
 
-// --------------------------------------------------
-// API ROUTES
-// --------------------------------------------------
-
+// API routes
 app.use('/api/admin', adminRoutes);
 app.use('/api/admin/members', membersRoutes);
 app.use('/api/admin/ground-rent', groundRentRoutes);
 app.use('/api/admin/finance', financeRoutes);
 
-// --------------------------------------------------
-// API 404 HANDLER
-// --------------------------------------------------
-
-app.use((req, res, next) => {
-  if (req.path.startsWith('/api')) {
-    return res.status(404).json({
-      error: 'Not found',
-    });
-  }
-
-  next();
+// API 404 handler - keep this after API routes
+app.use('/api', (req, res) => {
+  res.status(404).json({ error: 'API route not found' });
 });
 
 // --------------------------------------------------
