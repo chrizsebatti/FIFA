@@ -91,13 +91,17 @@ const corsOptions = {
 // Register CORS before all routes
 app.use(cors(corsOptions));
 
-app.get('/test', (req, res) => {
-  res.json({ message: 'Backend routing works' });
-});
-
 app.use(express.json());
 
-// Health check
+// Root + health (API-only service; frontend is on Vercel)
+app.get('/', (req, res) => {
+  res.status(200).json({
+    status: 'ok',
+    application: 'soccer-edathirinji-server',
+    health: '/api/health',
+  });
+});
+
 app.get('/api/health', (req, res) => {
   res.status(200).json({
     status: 'ok',
