@@ -1,10 +1,21 @@
 import axios from 'axios';
 
-const baseURL = import.meta.env.DEV
-  ? '/api'
-  : import.meta.env.VITE_API_URL;
+function resolveBaseURL() {
+  if (import.meta.env.DEV) return '/api';
 
-const api = axios.create({ baseURL });
+  let url = String(import.meta.env.VITE_API_URL || '').trim().replace(/\/$/, '');
+  if (!url) {
+    console.error('VITE_API_URL is not set for production');
+    return '/api';
+  }
+  // Ensure requests go to /api/... on the Render host
+  if (!url.endsWith('/api')) {
+    url = `${url}/api`;
+  }
+  return url;
+}
+
+const api = axios.create({ baseURL: resolveBaseURL() });
 
 api.interceptors.request.use((config) => {
   if (config.url === '/admin/login') return config;
