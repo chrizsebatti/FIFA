@@ -17,19 +17,30 @@ const PORT = Number(process.env.PORT) || 5001;
 
 const allowedOrigins = [
   'http://localhost:5173',
-  process.env.CLIENT_URL,
-].filter(Boolean);
+  'https://soccer-edathirinji.vercel.app',
+  ...String(process.env.CLIENT_URL || '')
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean),
+];
 
 app.use(
   cors({
     origin(origin, callback) {
-      if (!origin || allowedOrigins.includes(origin) || origin.endsWith('.vercel.app')) {
-        callback(null, true);
-      } else {
-        callback(new Error('Not allowed by CORS'));
+      // Allow non-browser / same-origin tools (no Origin header)
+      if (!origin) {
+        return callback(null, true);
       }
+      const allowed =
+        allowedOrigins.includes(origin) ||
+        /\.vercel\.app$/i.test(origin);
+      // Use false (not Error) so preflight still gets a valid CORS response shape
+      return callback(null, allowed);
     },
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    optionsSuccessStatus: 204,
   })
 );
 app.use(express.json());
