@@ -1,15 +1,6 @@
-# FIFA World Cup 2026 Prediction App
+# SOCCER EDATHIRINJI
 
-Mobile-first web app for predicting FIFA World Cup 2026 match winners and scores.
-
-## Features
-
-- Customers join with phone number (no OTP)
-- Predict match winner and exact score before kickoff
-- Predictions lock when match starts
-- Scoring: 50 pts (correct winner), 100 pts (correct winner + exact score)
-- Public leaderboard
-- Admin dashboard to manage matches, view predictions, and enter results
+Admin web app scaffold with login and a simple dashboard.
 
 ## Tech Stack
 
@@ -37,13 +28,16 @@ PORT=5001
 
 > **Note:** Port `5000` is often taken on macOS by AirPlay Receiver. Default is `5001`.
 
+> If you still have an old prediction database on that URI, drop it once:  
+> `mongosh "$MONGODB_URI" --eval 'db.dropDatabase()'`
+
 3. Start development (runs API on :5001 and client on :5173):
 
 ```bash
 npm run dev
 ```
 
-4. Open http://localhost:5173
+4. Open http://localhost:5173 — redirects to `/admin`
 
 ## Production
 
@@ -58,15 +52,11 @@ Express serves the built React app from `client/dist` and the API on the same po
 
 - URL: `/admin`
 - Credentials: set via `ADMIN_USERNAME` and `ADMIN_PASSWORD` in `server/.env`
+- After login: `/admin/dashboard` shows **SOCCER EDATHIRINJI**
 
 ## API Overview
 
 | Endpoint | Description |
 |----------|-------------|
-| `POST /api/auth/join` | Join with phone number |
-| `GET /api/matches` | List matches |
-| `POST /api/predictions` | Create/update prediction |
-| `GET /api/leaderboard` | Top 50 users |
 | `POST /api/admin/login` | Admin login |
-| `POST /api/admin/matches` | Create match |
-| `PUT /api/admin/matches/:id` | Update match / enter result |
+| `GET /api/health` | Health check |

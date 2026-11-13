@@ -6,23 +6,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { connectDB } from './config/db.js';
 import { errorHandler } from './middleware/errorHandler.js';
-import authRoutes from './routes/auth.js';
-import matchRoutes from './routes/matches.js';
-import predictionRoutes from './routes/predictions.js';
-import leaderboardRoutes from './routes/leaderboard.js';
 import adminRoutes from './routes/admin.js';
-import teamsRoutes from './routes/teams.js';
-import statsRoutes from './routes/stats.js';
-import bracketRoutes from './routes/bracket.js';
-
-// const cors = require('cors');
-
-// app.use(cors({
-//   origin: [
-//     'https://fifa2026-877ixmucc-christosebastaingmailcoms-projects.vercel.app'
-//   ],
-//   credentials: true
-// }));
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -47,13 +31,6 @@ app.use(
 );
 app.use(express.json());
 
-app.use('/api/auth', authRoutes);
-app.use('/api/matches', matchRoutes);
-app.use('/api/predictions', predictionRoutes);
-app.use('/api/leaderboard', leaderboardRoutes);
-app.use('/api/teams', teamsRoutes);
-app.use('/api/stats', statsRoutes);
-app.use('/api/bracket', bracketRoutes);
 app.use('/api/admin', adminRoutes);
 
 app.get('/api/health', (req, res) => {

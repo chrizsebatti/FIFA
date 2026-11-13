@@ -1,12 +1,11 @@
 {
-  "name": "fifa-predictions-server",
+  "name": "soccer-edathirinji-server",
   "version": "1.0.0",
   "private": true,
   "type": "module",
   "scripts": {
     "dev": "nodemon src/index.js",
-    "start": "node src/index.js",
-    "backfill-ranks": "node src/scripts/backfillRankSnapshots.js"
+    "start": "node src/index.js"
   },
   "dependencies": {
     "cors": "^2.8.5",
