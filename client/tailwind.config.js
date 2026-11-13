@@ -13,9 +13,9 @@ export default {
           dark: '#5C0018',
         },
         secondary: {
-          DEFAULT: '#F5EBD8',
-          dark: '#E8D9BE',
-          muted: '#D4C4A8',
+          DEFAULT: '#FFFFFF',
+          dark: '#F5F5F5',
+          muted: '#E5E5E5',
         },
       },
     },

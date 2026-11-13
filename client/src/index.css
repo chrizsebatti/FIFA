@@ -5,12 +5,12 @@
 :root {
   --color-primary: #800020;
   --color-primary-light: #9a2742;
-  --color-secondary: #f5ebd8;
-  --color-secondary-dark: #e8d9be;
+  --color-secondary: #ffffff;
+  --color-secondary-dark: #f5f5f5;
 }
 
 body {
-  @apply bg-secondary text-primary antialiased;
+  @apply bg-white text-primary antialiased;
   min-height: 100dvh;
 }
 
@@ -18,13 +18,24 @@ body {
   min-height: 100dvh;
 }
 
+select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  padding-right: 2.5rem;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%236b7280' stroke-width='1.8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='m6 8 4 4 4-4'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 1rem 1rem;
+}
+
 .hero-fade {
   -webkit-mask-image:
-    linear-gradient(to right, transparent 0%, #000 12%, #000 88%, transparent 100%),
-    linear-gradient(to bottom, transparent 0%, #000 14%, #000 86%, transparent 100%);
+    linear-gradient(to right, transparent 0%, #000 18%, #000 82%, transparent 100%),
+    linear-gradient(to bottom, transparent 0%, #000 18%, #000 80%, transparent 100%);
   mask-image:
-    linear-gradient(to right, transparent 0%, #000 12%, #000 88%, transparent 100%),
-    linear-gradient(to bottom, transparent 0%, #000 14%, #000 86%, transparent 100%);
+    linear-gradient(to right, transparent 0%, #000 18%, #000 82%, transparent 100%),
+    linear-gradient(to bottom, transparent 0%, #000 18%, #000 80%, transparent 100%);
   -webkit-mask-composite: source-in;
   mask-composite: intersect;
   -webkit-mask-repeat: no-repeat;

@@ -7,6 +7,9 @@ import { fileURLToPath } from 'url';
 import { connectDB } from './config/db.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import adminRoutes from './routes/admin.js';
+import membersRoutes from './routes/members.js';
+import groundRentRoutes from './routes/groundRent.js';
+import financeRoutes from './routes/finance.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -32,6 +35,9 @@ app.use(
 app.use(express.json());
 
 app.use('/api/admin', adminRoutes);
+app.use('/api/admin/members', membersRoutes);
+app.use('/api/admin/ground-rent', groundRentRoutes);
+app.use('/api/admin/finance', financeRoutes);
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok' });

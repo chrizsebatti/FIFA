@@ -27,9 +27,9 @@ export default function AdminLogin() {
   };
 
   return (
-    <div className="flex min-h-dvh items-center justify-center bg-[#FFF8F6] px-6 py-10">
+    <div className="flex min-h-dvh items-center justify-center bg-white px-6 py-10">
       <div className="flex w-full max-w-sm flex-col items-center">
-        <div className="hero-fade w-full">
+        <div className="hero-fade relative w-full">
           <img
             src={heroArt}
             alt="SOCCER EDATHIRINJI"
